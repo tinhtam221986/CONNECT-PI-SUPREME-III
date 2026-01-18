@@ -1,8 +1,3 @@
-export const metadata = {
-  title: 'CONNECT PI',
-  description: 'Supreme Web3',
-}
-
 export default function RootLayout({
   children,
 }: {
@@ -10,7 +5,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi">
-      <body style={{ backgroundColor: 'black', color: 'white', margin: 0 }}>
+      <body style={{ backgroundColor: '#000', color: '#fff', margin: 0, padding: 0 }}>
         {children}
       </body>
     </html>
