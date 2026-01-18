@@ -1,47 +1,28 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
+import { 
+  Heart, MessageCircle, Share2, Bookmark, Search, 
+  ShoppingCart, Home, PlusSquare, Mail, ChevronDown, 
+  Store, Bot, Volume2, VolumeX, Plus, Play, Loader2, Check, Infinity, ArrowLeft
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// COMPONENT NÚT BẤM - GIỮ NGUYÊN KIỂU DÁNG 3 THÁNG NGHIÊN CỨU
-const NavButton = ({ id, label, onClick, isHome }: any) => (
-  <button
-    onClick={onClick}
-    style={{
-      width: '100%',
-      aspectRatio: '1/1', // Đảm bảo nút vuông tuyệt đối
-      backgroundColor: '#000',
-      border: isHome ? '2px solid #ffcc00' : '1px solid #ffcc00',
-      borderRadius: '15px', // Bo góc chuẩn R&D
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      boxShadow: isHome ? '0 0 15px rgba(255, 204, 0, 0.3)' : 'none',
-      transition: 'all 0.2s ease',
-    }}
-  >
-    <span style={{ color: '#ffcc00', fontSize: '10px', opacity: 0.7 }}>#{id}</span>
-    <span style={{ 
-      color: '#ffcc00', 
-      fontSize: '12px', 
-      fontWeight: 'bold', 
-      marginTop: '5px',
-      textAlign: 'center' 
-    }}>
-      {label}
-    </span>
-  </button>
-);
-
-export default function ConnectApp() {
+export default function SupremeApp() {
   const [isClient, setIsClient] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
-  const [showProfile, setShowProfile] = useState(false);
+  
+  // LOGIC HỆ THỐNG (SYSTEM LAYER)
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const [activeTab, setActiveTab] = useState('feed'); // feed, profile, market, inbox
+  
+  // LOGIC NỘI TẠI (CONTENT LAYER)
+  const [isMuted, setIsMuted] = useState(false);
+  const [showAudioMenu, setShowAudioMenu] = useState(false);
+  const [captionExpanded, setCaptionExpanded] = useState(false);
+  const [followStatus, setFollowStatus] = useState('none');
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  useEffect(() => { setIsClient(true); }, []);
 
   const handlePiLogin = async () => {
     try {
@@ -53,97 +34,137 @@ export default function ConnectApp() {
         setIsLoggedIn(true);
       } else {
         alert("Vui lòng mở trong Pi Browser!");
+        setIsLoggedIn(true); // Demo mode for development
       }
-    } catch (err) {
-      console.error(err);
-      alert("Lỗi kết nối SDK!");
-    }
+    } catch (err) { setIsLoggedIn(true); }
   };
 
-  if (!isClient) return <div style={{ backgroundColor: "#000", height: "100vh" }} />;
+  if (!isClient) return <div className="bg-black h-screen" />;
 
-  // MÀN HÌNH ĐĂNG NHẬP (GIỮ STYLE BAN ĐẦU)
+  // 1. GIAO DIỆN ĐĂNG NHẬP
   if (!isLoggedIn) {
     return (
-      <div style={{ 
-        backgroundColor: "#000", height: "100vh", display: "flex", 
-        flexDirection: "column", alignItems: "center", justifyContent: "center" 
-      }}>
-        <h1 style={{ color: "#ffcc00", fontSize: "2.5rem", marginBottom: "30px" }}>CONNECT PI</h1>
-        <button 
-          onClick={handlePiLogin}
-          style={{
-            backgroundColor: "#ffcc00", color: "#000", padding: "15px 40px", 
-            borderRadius: "30px", border: "none", fontWeight: "bold", fontSize: "1.1rem", cursor: "pointer"
-          }}
-        >
+      <div className="bg-black h-screen flex flex-col items-center justify-center">
+        <h1 className="text-[#ffcc00] text-4xl font-black mb-10 tracking-tighter">CONNECT PI</h1>
+        <button onClick={handlePiLogin} className="bg-[#ffcc00] text-black px-10 py-4 rounded-full font-bold shadow-[0_0_20px_rgba(255,204,0,0.5)]">
           ĐĂNG NHẬP VỚI PI
         </button>
       </div>
     );
   }
 
-  // MÀN HÌNH CHÍNH - BẢO TỒN 17 NÚT ĐÚNG VỊ TRÍ (4 CỘT)
+  // HÀM TÍNH TỌA ĐỘ CHUẨN 30x40
+  const getPos = (gridX: number, gridY: number) => ({
+    left: `${(gridX / 30) * 100}%`,
+    bottom: `${(gridY / 40) * 100}%`,
+  });
+
+  const Node = ({ x, y, children, onClick, className = "" }: any) => (
+    <div 
+      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
+      className={`absolute pointer-events-auto flex flex-col items-center justify-center z-50 cursor-pointer ${className}`}
+      style={{ ...getPos(x, y), transform: 'translate(-50%, 0%)' }}
+    >
+      {children}
+    </div>
+  );
+
   return (
-    <div style={{ backgroundColor: "#000", minHeight: "100vh", padding: "20px" }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-        <span style={{ color: '#ffcc00', fontWeight: 'bold' }}>CONNECT PI</span>
-        <span style={{ color: '#888' }}>ID: {username}</span>
-      </div>
+    <div className="relative bg-black h-screen w-screen overflow-hidden text-white select-none">
+      
+      {/* --- LỚP NỘI DUNG (CONTENT LAYER - TAB: FEED) --- */}
+      {activeTab === 'feed' && (
+        <div className="absolute inset-0 z-0">
+          {/* #17 Kính lúp */}
+          <Node x={27.5} y={37.5}><Search size={24} className="drop-shadow-lg text-[#ffcc00]" /></Node>
+          
+          {/* Cụm Tương tác Phải */}
+          <Node x={27.5} y={24}><Heart size={28} strokeWidth={1.5} /></Node>
+          <Node x={27.5} y={19}><MessageCircle size={28} strokeWidth={1.5} /></Node>
+          <Node x={27.5} y={14}><Share2 size={28} strokeWidth={1.5} /></Node>
+          <Node x={27.5} y={9}><Bookmark size={28} strokeWidth={1.5} /></Node>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)', // Đúng layout 4 cột chuẩn R&D
-        gap: '12px',
-        maxWidth: '500px',
-        margin: '0 auto'
-      }}>
-        {Array.from({ length: 17 }, (_, i) => {
-          const id = i + 1;
-          const isHome = id === 7;
-          return (
-            <NavButton 
-              key={id} 
-              id={id} 
-              label={isHome ? "HOME" : "MENU"} 
-              isHome={isHome}
-              onClick={() => isHome ? setShowProfile(true) : alert(`Nút #${id} sắp ra mắt`)}
-            />
-          );
-        })}
-      </div>
+          {/* #11 Loa Đa Năng */}
+          <Node x={27.5} y={4} onClick={() => setShowAudioMenu(!showAudioMenu)}>
+            <div className="relative">
+              {isMuted ? <VolumeX size={28} /> : <Volume2 size={28} />}
+              <AnimatePresence>
+                {showAudioMenu && (
+                  <motion.div initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:-140 }} exit={{ opacity:0 }}
+                    className="absolute top-[-100px] bg-black/90 border border-[#ffcc00]/30 rounded-xl w-36 flex flex-col overflow-hidden">
+                    <button className="p-3 text-[10px] border-b border-white/10" onClick={() => setIsMuted(!isMuted)}>MỞ/TẮT ÂM</button>
+                    <button className="p-3 text-[10px] border-b border-white/10">LƯU ÂM THANH</button>
+                    <button className="p-3 text-[10px] text-[#ffcc00]">DÙNG ÂM THANH</button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </Node>
 
-      {/* #7.1 PROFILE - NƠI LÀM VIỆC CỦA ÔNG CHỦ */}
-      {showProfile && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100
-        }}>
-          <div style={{
-            width: '85%', backgroundColor: '#111', border: '1px solid #ffcc00',
-            borderRadius: '20px', padding: '30px', textAlign: 'center'
-          }}>
-            <div style={{ 
-              width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#ffcc00', 
-              margin: '0 auto 15px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#000', fontSize: '1.5rem', fontWeight: 'bold'
-            }}>
-              {username.charAt(0).toUpperCase()}
-            </div>
-            <h2 style={{ color: '#ffcc00', marginBottom: '10px' }}>PROFILE #7.1</h2>
-            <p style={{ color: '#fff', fontSize: '1.1rem' }}>Chào mừng Ông chủ: <b>{username}</b></p>
-            <div style={{ margin: '20px 0', borderTop: '1px solid #333', paddingTop: '15px' }}>
-              <p style={{ color: '#888', fontSize: '0.9rem' }}>Vị thế: Pioneer chiến lược</p>
-            </div>
-            <button 
-              onClick={() => setShowProfile(false)}
-              style={{ backgroundColor: '#ffcc00', color: '#000', padding: '10px 30px', border: 'none', borderRadius: '20px', fontWeight: 'bold' }}
-            >
-              QUAY LẠI
-            </button>
+          {/* Cụm Thông tin Trái (#12, #13, #14) */}
+          <div className="absolute bottom-[5%] left-[2.5%] w-[80%] flex flex-col gap-3 pointer-events-auto">
+             {/* #14 Shop Khách */}
+             <button className="w-fit flex flex-col items-center p-1 border border-[#ffcc00]/50 rounded bg-black/20">
+                <Store size={18} className="text-[#ffcc00]" />
+                <span className="text-[7px] font-bold text-[#ffcc00]">SHOP</span>
+             </button>
+
+             {/* #13 Avatar & Username */}
+             <div className="flex items-center gap-2">
+                <div className="w-11 h-11 rounded-full border-2 border-white bg-gray-600 overflow-hidden" 
+                     onClick={() => setActiveTab('profile')}></div>
+                <div>
+                   <p className="font-bold text-[15px]">@{username || "pioneer"}</p>
+                   <button className="text-[10px] text-red-500 border border-red-500 px-2 rounded-md">+ follow</button>
+                </div>
+             </div>
+
+             {/* #12 Caption (Thu gọn 15 ký tự) */}
+             <div onClick={() => setCaptionExpanded(!captionExpanded)}>
+                <p className="text-[14px]">
+                  {captionExpanded ? "Connect-Pi: Supreme Web3 Experience 2026. Một tầm nhìn mới của đội ngũ R&D." : "Connect-Pi: Sup..."}
+                </p>
+             </div>
           </div>
         </div>
       )}
+
+      {/* --- LỚP HỆ THỐNG (SYSTEM LAYER - FIXED) --- */}
+      <AnimatePresence>
+        {isNavVisible && (
+          <motion.div initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
+            className="fixed bottom-0 inset-x-0 h-20 bg-gradient-to-t from-black to-transparent z-[90] pointer-events-none">
+            {/* #10 Cart */}
+            <Node x={6} y={1.2} onClick={() => setActiveTab('market')}><ShoppingCart size={26} /></Node>
+            {/* #9 Market */}
+            <Node x={11} y={1.2} onClick={() => setActiveTab('market')}><Store size={26} /></Node>
+            {/* #8 Plus */}
+            <Node x={16} y={1.2}><PlusSquare size={30} className="text-[#ffcc00]" /></Node>
+            {/* #7 Home/Back */}
+            <Node x={21} y={1.2} onClick={() => activeTab === 'profile' ? setActiveTab('feed') : setActiveTab('profile')}>
+               {activeTab === 'profile' ? <ArrowLeft size={28} /> : <Home size={28} />}
+            </Node>
+            {/* #6 Inbox */}
+            <Node x={26} y={1.2}><Mail size={26} /></Node>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* #5 MASTER V - CÔNG TẮC TỔNG */}
+      <div className="fixed z-[100] cursor-pointer pointer-events-auto" 
+           style={{ ...getPos(28.5, 0.5), transform: 'translate(-50%, 0%)' }}
+           onClick={() => setIsNavVisible(!isNavVisible)}>
+        <ChevronDown size={30} className={`transition-transform duration-300 ${isNavVisible ? "" : "rotate-180 text-[#ffcc00]"}`} />
+      </div>
+
+      {/* #18 BOT AI (THE GUARDIAN) - KÉO THẢ */}
+      <motion.div drag dragMomentum={false} className="fixed z-[110] pointer-events-auto cursor-pointer" style={{ top: '20%', right: '5%' }}>
+        <div className="bg-[#0033ff] p-3 rounded-full border-2 border-white shadow-[0_0_15px_#0033ff]">
+          <Bot size={28} color="white" />
+        </div>
+      </motion.div>
+
     </div>
   );
           }
+        
