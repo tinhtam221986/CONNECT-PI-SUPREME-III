@@ -1,26 +1,29 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { 
-  Heart, MessageCircle, Share2, Bookmark, Search, 
-  ShoppingCart, Home, PlusSquare, Mail, ChevronDown, 
-  Store, Bot, Volume2, VolumeX, Plus, Play, Loader2, Check, Infinity, ArrowLeft
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+
+// --- HỆ THỐNG BIỂU TƯỢNG SVG NGUYÊN BẢN (KHÔNG CẦN THƯ VIỆN) ---
+const Icons = {
+  Search: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>,
+  Heart: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>,
+  Message: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>,
+  Share: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>,
+  Bookmark: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>,
+  Store: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>,
+  Home: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>,
+  Cart: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>,
+  Mail: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>,
+  Plus: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>,
+  ChevronDown: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>,
+  Bot: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8" y2="16"></line><line x1="16" y1="16" x2="16" y2="16"></line></svg>
+};
 
 export default function SupremeApp() {
   const [isClient, setIsClient] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
-  
-  // LOGIC HỆ THỐNG (SYSTEM LAYER)
   const [isNavVisible, setIsNavVisible] = useState(true);
-  const [activeTab, setActiveTab] = useState('feed'); // feed, profile, market, inbox
-  
-  // LOGIC NỘI TẠI (CONTENT LAYER)
-  const [isMuted, setIsMuted] = useState(false);
-  const [showAudioMenu, setShowAudioMenu] = useState(false);
+  const [activeTab, setActiveTab] = useState('feed');
   const [captionExpanded, setCaptionExpanded] = useState(false);
-  const [followStatus, setFollowStatus] = useState('none');
 
   useEffect(() => { setIsClient(true); }, []);
 
@@ -33,27 +36,23 @@ export default function SupremeApp() {
         setUsername(auth.user.username);
         setIsLoggedIn(true);
       } else {
-        alert("Vui lòng mở trong Pi Browser!");
-        setIsLoggedIn(true); // Demo mode for development
+        alert("Mở trong Pi Browser!");
+        setIsLoggedIn(true); // Demo mode
       }
     } catch (err) { setIsLoggedIn(true); }
   };
 
-  if (!isClient) return <div className="bg-black h-screen" />;
+  if (!isClient) return <div style={{backgroundColor:'#000', height:'100vh'}} />;
 
-  // 1. GIAO DIỆN ĐĂNG NHẬP
   if (!isLoggedIn) {
     return (
-      <div className="bg-black h-screen flex flex-col items-center justify-center">
-        <h1 className="text-[#ffcc00] text-4xl font-black mb-10 tracking-tighter">CONNECT PI</h1>
-        <button onClick={handlePiLogin} className="bg-[#ffcc00] text-black px-10 py-4 rounded-full font-bold shadow-[0_0_20px_rgba(255,204,0,0.5)]">
-          ĐĂNG NHẬP VỚI PI
-        </button>
+      <div style={{backgroundColor:'#000', height:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center'}}>
+        <h1 style={{color:'#ffcc00', fontSize:'40px', fontWeight:'900', marginBottom:'40px'}}>CONNECT PI</h1>
+        <button onClick={handlePiLogin} style={{backgroundColor:'#ffcc00', color:'#000', padding:'15px 40px', borderRadius:'30px', fontWeight:'bold', border:'none'}}>ĐĂNG NHẬP VỚI PI</button>
       </div>
     );
   }
 
-  // HÀM TÍNH TỌA ĐỘ CHUẨN 30x40
   const getPos = (gridX: number, gridY: number) => ({
     left: `${(gridX / 30) * 100}%`,
     bottom: `${(gridY / 40) * 100}%`,
@@ -62,109 +61,76 @@ export default function SupremeApp() {
   const Node = ({ x, y, children, onClick, className = "" }: any) => (
     <div 
       onClick={(e) => { e.stopPropagation(); onClick?.(); }}
-      className={`absolute pointer-events-auto flex flex-col items-center justify-center z-50 cursor-pointer ${className}`}
-      style={{ ...getPos(x, y), transform: 'translate(-50%, 0%)' }}
+      style={{ ...getPos(x, y), transform: 'translate(-50%, 0%)', position: 'absolute', zIndex: 50, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
     >
       {children}
     </div>
   );
 
   return (
-    <div className="relative bg-black h-screen w-screen overflow-hidden text-white select-none">
+    <div style={{ position: 'relative', backgroundColor: '#000', height: '100vh', width: '100vw', overflow: 'hidden', color: '#fff' }}>
       
-      {/* --- LỚP NỘI DUNG (CONTENT LAYER - TAB: FEED) --- */}
+      {/* --- CONTENT LAYER --- */}
       {activeTab === 'feed' && (
-        <div className="absolute inset-0 z-0">
-          {/* #17 Kính lúp */}
-          <Node x={27.5} y={37.5}><Search size={24} className="drop-shadow-lg text-[#ffcc00]" /></Node>
-          
-          {/* Cụm Tương tác Phải */}
-          <Node x={27.5} y={24}><Heart size={28} strokeWidth={1.5} /></Node>
-          <Node x={27.5} y={19}><MessageCircle size={28} strokeWidth={1.5} /></Node>
-          <Node x={27.5} y={14}><Share2 size={28} strokeWidth={1.5} /></Node>
-          <Node x={27.5} y={9}><Bookmark size={28} strokeWidth={1.5} /></Node>
+        <div style={{ position: 'absolute', inset: 0 }}>
+          <Node x={27.5} y={37.5}><Icons.Search /></Node>
+          <Node x={27.5} y={24}><Icons.Heart /></Node>
+          <Node x={27.5} y={19}><Icons.Message /></Node>
+          <Node x={27.5} y={14}><Icons.Share /></Node>
+          <Node x={27.5} y={9}><Icons.Bookmark /></Node>
+          <Node x={27.5} y={4}><Icons.Mail /></Node>
 
-          {/* #11 Loa Đa Năng */}
-          <Node x={27.5} y={4} onClick={() => setShowAudioMenu(!showAudioMenu)}>
-            <div className="relative">
-              {isMuted ? <VolumeX size={28} /> : <Volume2 size={28} />}
-              <AnimatePresence>
-                {showAudioMenu && (
-                  <motion.div initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:-140 }} exit={{ opacity:0 }}
-                    className="absolute top-[-100px] bg-black/90 border border-[#ffcc00]/30 rounded-xl w-36 flex flex-col overflow-hidden">
-                    <button className="p-3 text-[10px] border-b border-white/10" onClick={() => setIsMuted(!isMuted)}>MỞ/TẮT ÂM</button>
-                    <button className="p-3 text-[10px] border-b border-white/10">LƯU ÂM THANH</button>
-                    <button className="p-3 text-[10px] text-[#ffcc00]">DÙNG ÂM THANH</button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </Node>
-
-          {/* Cụm Thông tin Trái (#12, #13, #14) */}
-          <div className="absolute bottom-[5%] left-[2.5%] w-[80%] flex flex-col gap-3 pointer-events-auto">
-             {/* #14 Shop Khách */}
-             <button className="w-fit flex flex-col items-center p-1 border border-[#ffcc00]/50 rounded bg-black/20">
-                <Store size={18} className="text-[#ffcc00]" />
-                <span className="text-[7px] font-bold text-[#ffcc00]">SHOP</span>
+          {/* LEFT INFO */}
+          <div style={{ position: 'absolute', bottom: '5%', left: '2.5%', width: '80%', zIndex: 60 }}>
+             <button style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'4px', border:'1px solid #ffcc0080', borderRadius:'4px', backgroundColor:'transparent', marginBottom:'12px'}}>
+                <Icons.Store />
+                <span style={{fontSize:'7px', fontWeight:'bold', color:'#ffcc00'}}>SHOP</span>
              </button>
-
-             {/* #13 Avatar & Username */}
-             <div className="flex items-center gap-2">
-                <div className="w-11 h-11 rounded-full border-2 border-white bg-gray-600 overflow-hidden" 
-                     onClick={() => setActiveTab('profile')}></div>
+             <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'8px' }}>
+                <div style={{width:'44px', height:'44px', borderRadius:'50%', border:'2px solid #fff', backgroundColor:'#333'}} onClick={() => setActiveTab('profile')}></div>
                 <div>
-                   <p className="font-bold text-[15px]">@{username || "pioneer"}</p>
-                   <button className="text-[10px] text-red-500 border border-red-500 px-2 rounded-md">+ follow</button>
+                   <p style={{fontWeight:'bold', fontSize:'15px'}}>@{username || "pioneer"}</p>
+                   <span style={{fontSize:'10px', color:'#ff4444', border:'1px solid #ff4444', padding:'1px 6px', borderRadius:'4px'}}>+ follow</span>
                 </div>
              </div>
-
-             {/* #12 Caption (Thu gọn 15 ký tự) */}
              <div onClick={() => setCaptionExpanded(!captionExpanded)}>
-                <p className="text-[14px]">
-                  {captionExpanded ? "Connect-Pi: Supreme Web3 Experience 2026. Một tầm nhìn mới của đội ngũ R&D." : "Connect-Pi: Sup..."}
+                <p style={{fontSize:'14px', lineHeight:'1.2'}}>
+                  {captionExpanded ? "Connect-Pi: Supreme Web3 Experience 2026. Bản quy hoạch 17 nút bất biến." : "Connect-Pi: Sup..."}
                 </p>
              </div>
           </div>
         </div>
       )}
 
-      {/* --- LỚP HỆ THỐNG (SYSTEM LAYER - FIXED) --- */}
-      <AnimatePresence>
-        {isNavVisible && (
-          <motion.div initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
-            className="fixed bottom-0 inset-x-0 h-20 bg-gradient-to-t from-black to-transparent z-[90] pointer-events-none">
-            {/* #10 Cart */}
-            <Node x={6} y={1.2} onClick={() => setActiveTab('market')}><ShoppingCart size={26} /></Node>
-            {/* #9 Market */}
-            <Node x={11} y={1.2} onClick={() => setActiveTab('market')}><Store size={26} /></Node>
-            {/* #8 Plus */}
-            <Node x={16} y={1.2}><PlusSquare size={30} className="text-[#ffcc00]" /></Node>
-            {/* #7 Home/Back */}
-            <Node x={21} y={1.2} onClick={() => activeTab === 'profile' ? setActiveTab('feed') : setActiveTab('profile')}>
-               {activeTab === 'profile' ? <ArrowLeft size={28} /> : <Home size={28} />}
-            </Node>
-            {/* #6 Inbox */}
-            <Node x={26} y={1.2}><Mail size={26} /></Node>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* #5 MASTER V - CÔNG TẮC TỔNG */}
-      <div className="fixed z-[100] cursor-pointer pointer-events-auto" 
-           style={{ ...getPos(28.5, 0.5), transform: 'translate(-50%, 0%)' }}
-           onClick={() => setIsNavVisible(!isNavVisible)}>
-        <ChevronDown size={30} className={`transition-transform duration-300 ${isNavVisible ? "" : "rotate-180 text-[#ffcc00]"}`} />
+      {/* --- SYSTEM LAYER --- */}
+      <div style={{ 
+        position: 'fixed', bottom: 0, left: 0, right: 0, height: '80px', 
+        transition: 'transform 0.3s ease', transform: isNavVisible ? 'translateY(0)' : 'translateY(100px)',
+        background: 'linear-gradient(transparent, #000)', zIndex: 90, pointerEvents: 'none'
+      }}>
+        <Node x={6} y={1.2} onClick={() => setActiveTab('market')}><Icons.Cart /></Node>
+        <Node x={11} y={1.2} onClick={() => setActiveTab('market')}><Icons.Store /></Node>
+        <Node x={16} y={1.2}><div style={{color:'#ffcc00'}}><Icons.Plus /></div></Node>
+        <Node x={21} y={1.2} onClick={() => setActiveTab('feed')}><Icons.Home /></Node>
+        <Node x={26} y={1.2}><Icons.Mail /></Node>
       </div>
 
-      {/* #18 BOT AI (THE GUARDIAN) - KÉO THẢ */}
-      <motion.div drag dragMomentum={false} className="fixed z-[110] pointer-events-auto cursor-pointer" style={{ top: '20%', right: '5%' }}>
-        <div className="bg-[#0033ff] p-3 rounded-full border-2 border-white shadow-[0_0_15px_#0033ff]">
-          <Bot size={28} color="white" />
+      {/* MASTER V (#5) */}
+      <div 
+        style={{ ...getPos(28.5, 0.5), position: 'fixed', zIndex: 100, cursor: 'pointer', transition: 'transform 0.3s' }}
+        onClick={() => setIsNavVisible(!isNavVisible)}
+      >
+        <div style={{ transform: isNavVisible ? 'rotate(0deg)' : 'rotate(180deg)', color: isNavVisible ? '#fff' : '#ffcc00' }}>
+          <Icons.ChevronDown />
         </div>
-      </motion.div>
+      </div>
+
+      {/* BOT AI (#18) */}
+      <div style={{ position: 'fixed', top: '20%', right: '5%', zIndex: 110, backgroundColor: '#0033ff', padding: '12px', borderRadius: '50%', border: '2px solid #fff', boxShadow: '0 0 15px #0033ff' }}>
+        <Icons.Bot />
+      </div>
 
     </div>
   );
-          }
-        
+}
+  
