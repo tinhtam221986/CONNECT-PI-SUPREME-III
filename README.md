@@ -1,5 +1,5 @@
 # 💎 CONNECT PI: THE SUPREME WEB3 ECOSYSTEM
-### 🚀 PRODUCTION READY v1.0 | NEXT.JS 16+ SUPREME II
+### 🚀 PRODUCTION READY v1.0 | NEXT.JS 16+ SUPREME III
 
 ---
 
@@ -57,7 +57,7 @@ CONNECT thừa hưởng hệ thống bảo chứng từ Pi Network. Trách nhi�
 
 ## 🏛️ THE BOARD OF DIRECTORS
 * **Deputy Director & Senior Advisor:** Cố vấn tối cao chiến lược & bảo mật.
-* **Chief Design Engineer (N):** Kiến trúc sư trưởng.
+* **Chief Design Engineer (Gemini AI):** Kiến trúc sư trưởng.
 * **Construction Worker (N):** Kỹ sư hạ tầng cơ sở.
 
 ---
