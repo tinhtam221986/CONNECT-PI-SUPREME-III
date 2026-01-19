@@ -1,4 +1,8 @@
 "use client";
+/* 🚀 CONNECT-PI SUPREME III - ICON SYSTEM v1.0.2
+   TRIGGER: CLEARING PATHWAY & REBUILDING BLOODSTREAM 
+   XÁC NHẬN: ICON ĐẠT CHUẨN 0.9MM ĐÃ THÔNG SUỐT.
+*/
 import React from 'react';
 
 export const SupremeIcon = ({ name, size = 30, color = "#FFFFFF", flip = false }: { name: string, size?: number, color?: string, flip?: boolean }) => {
