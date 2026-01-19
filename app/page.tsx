@@ -1,102 +1,89 @@
 "use client";
-import React, { useState } from 'react';
-// Đảm bảo đường dẫn này đúng nếu bạn đã di chuyển file vào thư mục app
+import React, { useState, useEffect } from 'react';
 import { SupremeIcon } from './SupremeIcons'; 
 import ProfilePage from './ProfilePage';      
 
 export default function SupremeMasterApp() {
-  const [view, setView] = useState<'feed' | 'profile'>('feed');
+  const [view, setView] = useState<'feed' | 'profile' | 'upload'>('feed');
   const [isNavVisible, setIsNavVisible] = useState(true);
-  const [showVolMenu, setShowVolMenu] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [myVideos, setMyVideos] = useState([]);
+  const [uploading, setUploading] = useState(false);
+
+  // 1. Hàm lấy danh sách video thật từ MongoDB khi vào Profile
+  useEffect(() => {
+    if (view === 'profile') {
+      fetch('/api/videos').then(res => res.json()).then(data => setMyVideos(data));
+    }
+  }, [view]);
+
+  // 2. Hàm xử lý Upload Video lên Cloudflare R2 thông qua API
+  const handleUpload = async (e: any) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('caption', (document.getElementById('vCap') as HTMLInputElement).value || "Connect-Pi Video");
+
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      if (res.ok) {
+        alert("🦾 SIÊU CẤP: Video đã được đẩy lên Cloudflare R2 & MongoDB thành công!");
+        setView('profile');
+      }
+    } catch (err) {
+      alert("Lỗi kết nối mạch máu dữ liệu!");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', backgroundColor: '#000', overflow: 'hidden', fontFamily: 'Arial, sans-serif' }}>
       
-      {view === 'profile' ? (
-        <ProfilePage /> 
-      ) : (
-        <>
-          {/* NÚT TÌM KIẾM #17 */}
-          <div style={{ position: 'absolute', top: '25px', right: '20px', zIndex: 100 }}>
-            <SupremeIcon name="search" size={28} />
+      {view === 'profile' && <ProfilePage videoList={myVideos} />}
+      
+      {view === 'upload' && (
+        <div style={{ width: '100vw', height: '100vh', backgroundColor: '#000', color: '#fff', padding: '40px 20px', zIndex: 2000 }}>
+          <div onClick={() => setView('feed')}><SupremeIcon name="chevron" size={30} color="#ffcc00" /></div>
+          <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '20px' }}>{uploading ? "ĐANG ĐẨY LÊN R2..." : "TẢI VIDEO THẬT 🚀"}</h2>
+          
+          <div style={{ width: '100%', height: '200px', border: '2px dashed #ffcc00', borderRadius: '15px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginTop: '20px', backgroundColor: '#0a0a0a', position: 'relative' }}>
+             {uploading ? (
+               <div className="animate-spin" style={{ width: '40px', height: '40px', border: '4px solid #ffcc00', borderTopColor: 'transparent', borderRadius: '50%' }}></div>
+             ) : (
+               <>
+                 <SupremeIcon name="plus" size={40} color="#ffcc00" />
+                 <p style={{ color: '#ffcc00', fontSize: '14px', marginTop: '10px' }}>Chạm để chọn Video từ máy</p>
+                 <input type="file" accept="video/*" onChange={handleUpload} style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} disabled={uploading} />
+               </>
+             )}
           </div>
-
-          {/* CỘT PHẢI - ICON MẢNH 0.9MM */}
-          <div style={{ 
-            position: 'absolute', right: '12px', bottom: '80px', 
-            display: 'flex', flexDirection: 'column', alignItems: 'center', 
-            justifyContent: 'space-between', height: '360px', zIndex: 100 
-          }}>
-            <SupremeIcon name="heart" size={32} />
-            <SupremeIcon name="comment" size={32} />
-            <SupremeIcon name="share" size={32} />
-            <SupremeIcon name="save" size={32} />
-            
-            <div style={{ position: 'relative' }}>
-              <div onClick={() => setShowVolMenu(!showVolMenu)} style={{ cursor: 'pointer' }}>
-                <SupremeIcon name="volume" size={32} flip={true} /> 
-              </div>
-              {showVolMenu && (
-                <div style={{ 
-                  position: 'absolute', right: '55px', bottom: '0', width: '135px',
-                  backgroundColor: 'rgba(0,0,0,0.9)', borderRadius: '12px', border: '0.8px solid rgba(255,255,255,0.3)',
-                  display: 'flex', flexDirection: 'column', overflow: 'hidden', backdropFilter: 'blur(10px)', zIndex: 200
-                }}>
-                  <div onClick={() => {setIsMuted(!isMuted); setShowVolMenu(false);}} style={{ padding: '12px', fontSize: '11px', borderBottom: '0.5px solid #333', cursor: 'pointer', color: '#fff' }}>
-                    {isMuted ? "Mở âm thanh" : "Tắt âm thanh"}
-                  </div>
-                  <div style={{ padding: '12px', fontSize: '11px', borderBottom: '0.5px solid #333', color: '#fff' }}>Lưu âm thanh</div>
-                  <div style={{ padding: '12px', fontSize: '11px', color: '#fff' }}>Sử dụng</div>
-                </div>
-              )}
-            </div>
-
-            <div onClick={() => setIsNavVisible(!isNavVisible)} style={{ cursor:'pointer', transition:'0.3s', transform: isNavVisible ? 'rotate(0deg)' : 'rotate(180deg)' }}>
-              <SupremeIcon name="chevron" size={32} />
-            </div>
-          </div>
-
-          {/* CỤM THÔNG TIN TRÁI */}
-          <div style={{ position: 'absolute', bottom: '70px', left: '15px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <div style={{ width: '24px', height: '24px', borderRadius: '4px', border: '0.8px solid #ffcc00', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.6)' }}>
-              <SupremeIcon name="store" size={14} color="#ffcc00" />
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '50%', border: '1px solid #fff', backgroundColor: '#111' }} />
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '15px', fontWeight: 'bold', color:'#fff' }}>@architect</span>
-                <span style={{ fontSize: '9px', color: '#ff4444', border: '0.8px solid #ff4444', padding: '0px 4px', borderRadius: '3px', width: 'fit-content' }}>+ follow</span>
-              </div>
-            </div>
-            <p style={{ fontSize: '14px', color: '#fff', margin: 0, opacity: 0.95 }}>Connect-Pi: Sup...</p>
-          </div>
-        </>
+          <input id="vCap" placeholder="Nhập tiêu đề video..." style={{ width: '100%', backgroundColor: 'transparent', border: 'none', borderBottom: '1px solid #333', padding: '15px 0', color: '#fff', marginTop: '20px', outline: 'none' }} />
+        </div>
       )}
 
-      {/* THANH ĐIỀU HƯỚNG ĐÁY */}
-      <div style={{ 
-        position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
-        width: '82%', height: '65px', 
-        display: 'flex', alignItems: 'center', justifyContent: 'space-around', 
-        background: 'linear-gradient(transparent, rgba(0,0,0,1))',
-        transition: 'transform 0.4s ease',
-        transform: isNavVisible ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100px)',
-        zIndex: 1000
-      }}>
-        <div onClick={() => setView('feed')} style={{ cursor: 'pointer', opacity: view === 'feed' ? 1 : 0.6 }}>
-          <SupremeIcon name="cart" size={26} />
+      {view === 'feed' && (
+        <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+           <p style={{ color: '#555' }}>Video Feed Coming Soon...</p>
         </div>
+      )}
+
+      {/* NAVIGATION BAR - GIỮ NGUYÊN LOGIC */}
+      <div style={{ 
+        position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '82%', height: '65px', 
+        display: 'flex', alignItems: 'center', justifyContent: 'space-around', background: 'linear-gradient(transparent, rgba(0,0,0,1))',
+        transition: 'transform 0.4s ease', transform: isNavVisible ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100px)', zIndex: 1000
+      }}>
+        <div onClick={() => setView('feed')} style={{ opacity: view === 'feed' ? 1 : 0.6 }}><SupremeIcon name="cart" size={26} /></div>
         <SupremeIcon name="global" size={28} />
-        <div style={{ width: '34px', height: '22px', borderRadius: '5px', border: '1px solid #ffcc00', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div onClick={() => setView('upload')} style={{ width: '34px', height: '22px', borderRadius: '5px', border: '1px solid #ffcc00', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <SupremeIcon name="plus" size={16} color="#ffcc00" />
         </div>
-        <div onClick={() => setView(view === 'profile' ? 'feed' : 'profile')} style={{ cursor: 'pointer', opacity: 1 }}>
-          <SupremeIcon name="home" size={26} color={view === 'profile' ? "#ffcc00" : "#fff"} />
-        </div>
+        <div onClick={() => setView('profile')} style={{ opacity: view === 'profile' ? 1 : 0.6 }}><SupremeIcon name="home" size={26} color={view === 'profile' ? "#ffcc00" : "#fff"} /></div>
         <SupremeIcon name="mail" size={26} />
       </div>
-
     </div>
   );
-      }
+                                                       }
