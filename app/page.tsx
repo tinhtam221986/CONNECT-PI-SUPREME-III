@@ -1,10 +1,10 @@
 "use client";
 import React, { useState } from 'react';
-import { SupremeIcon } from './SupremeIcons'; // Đấu nối kho Icon
-import ProfilePage from './ProfilePage';      // Đấu nối trang Profile Boss
+// Đảm bảo đường dẫn này đúng nếu bạn đã di chuyển file vào thư mục app
+import { SupremeIcon } from './SupremeIcons'; 
+import ProfilePage from './ProfilePage';      
 
 export default function SupremeMasterApp() {
-  // Trạng thái điều hướng: 'feed' (Trang chủ video) hoặc 'profile' (Trang Boss)
   const [view, setView] = useState<'feed' | 'profile'>('feed');
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [showVolMenu, setShowVolMenu] = useState(false);
@@ -13,20 +13,16 @@ export default function SupremeMasterApp() {
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', backgroundColor: '#000', overflow: 'hidden', fontFamily: 'Arial, sans-serif' }}>
       
-      {/* ---------------------------------------------------------
-          PHẦN 1: HIỂN THỊ NỘI DUNG (THAY ĐỔI THEO TRẠNG THÁI VIEW)
-      ---------------------------------------------------------- */}
       {view === 'profile' ? (
         <ProfilePage /> 
       ) : (
-        /* GIAO DIỆN VIDEO FEED (KẾT QUẢ ĐÃ ĐẠT CHUẨN CỦA CHÚNG TA) */
         <>
-          {/* KÍNH LÚP */}
+          {/* NÚT TÌM KIẾM #17 */}
           <div style={{ position: 'absolute', top: '25px', right: '20px', zIndex: 100 }}>
             <SupremeIcon name="search" size={28} />
           </div>
 
-          {/* CỘT PHẢI - CĂN CHỈNH ĐỀU TUYỆT ĐỐI */}
+          {/* CỘT PHẢI - ICON MẢNH 0.9MM */}
           <div style={{ 
             position: 'absolute', right: '12px', bottom: '80px', 
             display: 'flex', flexDirection: 'column', alignItems: 'center', 
@@ -37,7 +33,6 @@ export default function SupremeMasterApp() {
             <SupremeIcon name="share" size={32} />
             <SupremeIcon name="save" size={32} />
             
-            {/* NÚT LOA THÔNG MINH */}
             <div style={{ position: 'relative' }}>
               <div onClick={() => setShowVolMenu(!showVolMenu)} style={{ cursor: 'pointer' }}>
                 <SupremeIcon name="volume" size={32} flip={true} /> 
@@ -57,13 +52,12 @@ export default function SupremeMasterApp() {
               )}
             </div>
 
-            {/* NÚT V #5 */}
             <div onClick={() => setIsNavVisible(!isNavVisible)} style={{ cursor:'pointer', transition:'0.3s', transform: isNavVisible ? 'rotate(0deg)' : 'rotate(180deg)' }}>
               <SupremeIcon name="chevron" size={32} />
             </div>
           </div>
 
-          {/* CỤM THÔNG TIN TRÁI - KÉO SÁT NÚT GIỎ HÀNG 1/3 */}
+          {/* CỤM THÔNG TIN TRÁI */}
           <div style={{ position: 'absolute', bottom: '70px', left: '15px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <div style={{ width: '24px', height: '24px', borderRadius: '4px', border: '0.8px solid #ffcc00', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.6)' }}>
               <SupremeIcon name="store" size={14} color="#ffcc00" />
@@ -80,9 +74,7 @@ export default function SupremeMasterApp() {
         </>
       )}
 
-      {/* ---------------------------------------------------------
-          PHẦN 2: THANH ĐIỀU HƯỚNG CỐ ĐỊNH (BOTTOM NAVIGATION)
-      ---------------------------------------------------------- */}
+      {/* THANH ĐIỀU HƯỚNG ĐÁY */}
       <div style={{ 
         position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
         width: '82%', height: '65px', 
@@ -92,28 +84,19 @@ export default function SupremeMasterApp() {
         transform: isNavVisible ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100px)',
         zIndex: 1000
       }}>
-        {/* Nút Giỏ hàng #10 */}
         <div onClick={() => setView('feed')} style={{ cursor: 'pointer', opacity: view === 'feed' ? 1 : 0.6 }}>
           <SupremeIcon name="cart" size={26} />
         </div>
-
-        {/* Nút Siêu thị #9 */}
         <SupremeIcon name="global" size={28} />
-
-        {/* Nút Cộng + #8 */}
         <div style={{ width: '34px', height: '22px', borderRadius: '5px', border: '1px solid #ffcc00', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <SupremeIcon name="plus" size={16} color="#ffcc00" />
         </div>
-
-        {/* NÚT HOME #7 - CHÌA KHÓA VÀO PROFILE ÔNG CHỦ */}
-        <div onClick={() => setView(view === 'profile' ? 'feed' : 'profile')} style={{ cursor: 'pointer', opacity: view === 'profile' ? 1 : 0.6 }}>
+        <div onClick={() => setView(view === 'profile' ? 'feed' : 'profile')} style={{ cursor: 'pointer', opacity: 1 }}>
           <SupremeIcon name="home" size={26} color={view === 'profile' ? "#ffcc00" : "#fff"} />
         </div>
-
-        {/* Nút Hộp thư #6 */}
         <SupremeIcon name="mail" size={26} />
       </div>
 
     </div>
   );
-                }
+      }
