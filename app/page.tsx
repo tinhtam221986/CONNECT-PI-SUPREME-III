@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from 'react';
 
-// --- HỆ THỐNG ICON SIÊU MẢNH (STROKE 0.8 - 1.0) ---
-const SupremeIcon = ({ name, size = 26, color = "#FFFFFF", flip = false }: { name: string, size?: number, color?: string, flip?: boolean }) => {
+// --- HỆ THỐNG ICON SIÊU MẢNH (STROKE 0.9) ---
+const SupremeIcon = ({ name, size = 30, color = "#FFFFFF", flip = false }: { name: string, size?: number, color?: string, flip?: boolean }) => {
   const filterStyle = { 
     filter: 'drop-shadow(0px 0px 1.5px rgba(0,0,0,1))',
-    transform: flip ? 'scaleX(-1)' : 'none' // Lật icon loa quay vào trong
+    transform: flip ? 'scaleX(-1)' : 'none' 
   };
   
   const icons: any = {
@@ -14,7 +14,7 @@ const SupremeIcon = ({ name, size = 26, color = "#FFFFFF", flip = false }: { nam
     comment: <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />,
     share: <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" />,
     save: <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />,
-    volume: <path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14" />,
+    volume: <path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07" />,
     chevron: <polyline points="6 9 12 15 18 9" />,
     cart: <><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></>,
     global: <><path d="M3 21h18M3 7l9-5 9 5v14H3V7z" /><circle cx="12" cy="13" r="4" /><line x1="8" y1="13" x2="16" y2="13" /></>,
@@ -31,43 +31,56 @@ const SupremeIcon = ({ name, size = 26, color = "#FFFFFF", flip = false }: { nam
   );
 };
 
-export default function SupremeIV() {
+export default function SupremeV() {
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [showVolMenu, setShowVolMenu] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', backgroundColor: '#000', overflow: 'hidden' }}>
       
-      {/* 1. CỘT PHẢI - NÉN KHOẢNG CÁCH XUỐNG ĐÁY */}
+      {/* KÍNH LÚP */}
+      <div style={{ position: 'absolute', top: '25px', right: '20px', zIndex: 100 }}>
+        <SupremeIcon name="search" size={28} />
+      </div>
+
+      {/* 3. CỘT PHẢI - DÀN ĐỀU VÀ NÉN KHOẢNG CÁCH ĐÁY */}
       <div style={{ 
-        position: 'absolute', right: '12px', bottom: '80px', // Hạ thấp toàn bộ cột
+        position: 'absolute', right: '12px', bottom: '80px', // Vị trí neo cho nút V #5
         display: 'flex', flexDirection: 'column', alignItems: 'center', 
-        justifyContent: 'flex-end', gap: '18px', zIndex: 100 
+        justifyContent: 'space-between', height: '360px', zIndex: 100 
       }}>
-        <SupremeIcon name="heart" size={30} />
+        {/* Nút Tim #1 (Chuẩn neo trên) */}
+        <SupremeIcon name="heart" size={32} />
+        
         <SupremeIcon name="comment" size={32} />
         <SupremeIcon name="share" size={32} />
         <SupremeIcon name="save" size={32} />
         
-        {/* NÚT LOA #11 - TĂNG 4/3, QUAY VÀO TRONG, MENU 3 NGĂN */}
+        {/* 1 & 2. NÚT LOA #11 - KÍCH THƯỚC CHUẨN & LOGIC THÔNG MINH */}
         <div style={{ position: 'relative' }}>
           <div onClick={() => setShowVolMenu(!showVolMenu)} style={{ cursor: 'pointer' }}>
-            <SupremeIcon name="volume" size={42} flip={true} /> 
+            <SupremeIcon name="volume" size={32} flip={true} /> 
           </div>
           {showVolMenu && (
             <div style={{ 
-              position: 'absolute', right: '50px', bottom: '0', width: '140px',
-              backgroundColor: 'rgba(0,0,0,0.85)', borderRadius: '10px', border: '0.8px solid #fff',
-              display: 'flex', flexDirection: 'column', overflow: 'hidden', backdropFilter: 'blur(5px)'
+              position: 'absolute', right: '55px', bottom: '0', width: '130px',
+              backgroundColor: 'rgba(0,0,0,0.9)', borderRadius: '12px', border: '0.8px solid rgba(255,255,255,0.3)',
+              display: 'flex', flexDirection: 'column', overflow: 'hidden', backdropFilter: 'blur(10px)', zIndex: 200
             }}>
-              <div style={{ padding: '10px', fontSize: '11px', borderBottom: '0.5px solid #444' }}>Tắt/mở âm thanh</div>
-              <div style={{ padding: '10px', fontSize: '11px', borderBottom: '0.5px solid #444' }}>Lưu âm thanh</div>
-              <div style={{ padding: '10px', fontSize: '11px' }}>Sử dụng</div>
+              <div 
+                onClick={() => {setIsMuted(!isMuted); setShowVolMenu(false);}}
+                style={{ padding: '12px', fontSize: '11px', borderBottom: '0.5px solid #333', cursor: 'pointer', color: '#fff' }}
+              >
+                {isMuted ? "Mở âm thanh" : "Tắt âm thanh"}
+              </div>
+              <div style={{ padding: '12px', fontSize: '11px', borderBottom: '0.5px solid #333', color: '#fff' }}>Lưu âm thanh</div>
+              <div style={{ padding: '12px', fontSize: '11px', color: '#fff' }}>Sử dụng</div>
             </div>
           )}
         </div>
 
-        {/* NÚT V #5 - CÁCH NÚT HỘP THƯ 1/2 KHOẢNG CÁCH */}
+        {/* NÚT V #5 (Chuẩn neo dưới) - Khoảng cách tới mail icon = 1/2 cũ */}
         <div 
           onClick={() => setIsNavVisible(!isNavVisible)} 
           style={{ cursor:'pointer', transition:'0.3s', transform: isNavVisible ? 'rotate(0deg)' : 'rotate(180deg)' }}
@@ -78,7 +91,7 @@ export default function SupremeIV() {
 
       {/* 2. CỤM TRÁI - KÉO XUỐNG SÁT NÚT GIỎ HÀNG (1/3 KHOẢNG CÁCH) */}
       <div style={{ 
-        position: 'absolute', bottom: '72px', left: '15px', zIndex: 100, 
+        position: 'absolute', bottom: '70px', left: '15px', zIndex: 100, 
         display: 'flex', flexDirection: 'column', gap: '6px' 
       }}>
         <div style={{ 
@@ -91,21 +104,23 @@ export default function SupremeIV() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '42px', height: '42px', borderRadius: '50%', border: '1px solid #fff', backgroundColor: '#111' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '15px', fontWeight: 'bold', color:'#fff' }}>@architect</span>
-            <span style={{ fontSize: '9px', color: '#ff4444', border: '0.8px solid #ff4444', padding: '0px 5px', borderRadius: '3px', width: 'fit-content' }}>+ follow</span>
+            <span style={{ fontSize: '15px', fontWeight: 'bold', color:'#fff', textShadow: '1px 1px 2px #000' }}>@architect</span>
+            <span style={{ fontSize: '9px', color: '#ff4444', border: '0.8px solid #ff4444', padding: '0px 4px', borderRadius: '3px', width: 'fit-content' }}>+ follow</span>
           </div>
         </div>
 
-        <p style={{ fontSize: '14px', color: '#fff', margin: 0, opacity: 0.9 }}>Connect-Pi: Sup...</p>
+        <p style={{ fontSize: '14px', color: '#fff', margin: 0, opacity: 0.95, textShadow: '1px 1px 2px #000' }}>
+          Connect-Pi: Sup...
+        </p>
       </div>
 
-      {/* 3. THANH ĐIỀU HƯỚNG ĐÁY - SIÊU CÔ ĐẶNG */}
+      {/* THANH ĐIỀU HƯỚNG ĐÁY */}
       <div style={{ 
         position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
-        width: '80%', height: '65px', 
+        width: '82%', height: '65px', 
         display: 'flex', alignItems: 'center', justifyContent: 'space-around', 
         background: 'linear-gradient(transparent, rgba(0,0,0,1))',
-        transition: 'transform 0.4s cubic-bezier(0.1, 0.7, 0.1, 1)',
+        transition: 'transform 0.4s ease',
         transform: isNavVisible ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100px)',
         zIndex: 90
       }}>
@@ -120,5 +135,5 @@ export default function SupremeIV() {
 
     </div>
   );
-          }
-      
+            }
+          
