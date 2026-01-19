@@ -15,7 +15,7 @@ export const SupremeIcon = ({ name, size = 30, color = "#FFFFFF", flip = false }
     home: <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />,
     global: <><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></>,
     mail: <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6" />,
-    store: <rect x="3" y="4" width="18" height="12" rx="2" /><path d="M3 8h18M9 16v4M15 16v4" />
+    store: <><rect x="3" y="4" width="18" height="12" rx="2" /><path d="M3 8h18M9 16v4M15 16v4" /></>
   };
 
   return (
