@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 // --- HỆ THỐNG ICON SIÊU MẢNH (STROKE 1.0) & VIỀN ĐEN MỜ (GLOW BLACK) ---
 const SupremeIcon = ({ name, size = 26, color = "#FFFFFF" }: { name: string, size?: number, color?: string }) => {
   const filterStyle = { filter: 'drop-shadow(0px 0px 1.5px rgba(0,0,0,1)) drop-shadow(0px 0px 0.5px rgba(0,0,0,1))' };
+  
   const icons: any = {
     heart: <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />,
     comment: <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />,
@@ -11,12 +12,25 @@ const SupremeIcon = ({ name, size = 26, color = "#FFFFFF" }: { name: string, siz
     save: <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />,
     volume: <path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14" />,
     chevron: <polyline points="6 9 12 15 18 9" />,
-    cart: <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />,
-    global: <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />,
+    // Đã bọc Fragment <> </> để tránh lỗi "Expected ',', got 'cx'"
+    cart: <>
+      <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+    </>,
+    global: <>
+      <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </>,
     plus: <path d="M12 5v14M5 12h14" />,
     home: <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />,
-    mail: <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />,
-    store: <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><rect x="9" y="15" width="6" height="7" />
+    mail: <>
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+      <polyline points="22,6 12,13 2,6" />
+    </>,
+    store: <>
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <line x1="9" y1="22" x2="9" y2="12" /><line x1="15" y1="22" x2="15" y2="12" />
+    </>
   };
 
   return (
@@ -32,7 +46,7 @@ export default function SupremeFinal() {
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', backgroundColor: '#000', overflow: 'hidden', fontFamily: 'Arial, sans-serif' }}>
       
-      {/* 1. CỘT 6 NÚT BÊN PHẢI (THẲNG HÀNG DỌC TUYỆT ĐỐI) */}
+      {/* 1. CỘT 6 NÚT BÊN PHẢI (THẲNG HÀNG DỌC) */}
       <div style={{ position: 'absolute', right: '12px', bottom: '15%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '22px', zIndex: 100 }}>
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
           <SupremeIcon name="heart" />
@@ -41,16 +55,16 @@ export default function SupremeFinal() {
         <SupremeIcon name="comment" />
         <SupremeIcon name="share" />
         <SupremeIcon name="save" />
-        <SupremeIcon name="volume" /> {/* #11 Loa */}
+        <SupremeIcon name="volume" />
         <div onClick={() => setIsNavVisible(!isNavVisible)} style={{ cursor:'pointer', transition:'0.3s', transform: isNavVisible ? 'rotate(0deg)' : 'rotate(180deg)' }}>
-          <SupremeIcon name="chevron" /> {/* #5 Nút V */}
+          <SupremeIcon name="chevron" />
         </div>
       </div>
 
-      {/* 2. CỤM TRÁI (AVATAR & SHOP - THU NHỎ 3/4 & HÀI HÒA) */}
+      {/* 2. CỤM TRÁI (AVATAR & SHOP - THU NHỎ 3/4) */}
       <div style={{ position: 'absolute', bottom: '100px', left: '12px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '10px' }}>
         
-        {/* #14 SHOP CHỦ VIDEO (Kích thước mảnh, cân đối) */}
+        {/* #14 SHOP CHỦ VIDEO */}
         <div style={{ 
           width: '32px', height: '32px', borderRadius: '6px', border: '1px solid rgba(255,204,0,0.7)', 
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -69,7 +83,6 @@ export default function SupremeFinal() {
           </div>
         </div>
 
-        {/* CAPTION (15 KÝ TỰ) */}
         <p style={{ fontSize: '14px', color: '#fff', textShadow: '1px 1px 2px #000', margin: 0 }}>Connect-Pi: Sup...</p>
       </div>
 
@@ -82,8 +95,8 @@ export default function SupremeFinal() {
         transform: isNavVisible ? 'translateY(0)' : 'translateY(100px)',
         zIndex: 90
       }}>
-        <SupremeIcon name="cart" size={24} />   {/* #10 */}
-        <SupremeIcon name="global" size={24} /> {/* #9 */}
+        <SupremeIcon name="cart" size={24} />
+        <SupremeIcon name="global" size={24} />
         
         {/* #8 ĐĂNG VIDEO (TRUNG TÂM TUYỆT ĐỐI) */}
         <div style={{ 
@@ -93,11 +106,10 @@ export default function SupremeFinal() {
           <SupremeIcon name="plus" size={20} color="#ffcc00" />
         </div>
 
-        <SupremeIcon name="home" size={24} />   {/* #7 */}
-        <SupremeIcon name="mail" size={24} />   {/* #6 */}
+        <SupremeIcon name="home" size={24} />
+        <SupremeIcon name="mail" size={24} />
       </div>
 
     </div>
   );
-    }
-          
+      }
