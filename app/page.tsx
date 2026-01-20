@@ -1,95 +1,94 @@
 "use client";
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import Script from "next/script";
 
 export default function SupremeMasterApp() {
-  const [piUser, setPiUser] = useState<{username: string, uid: string} | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // 1. Khởi tạo SDK ngay lập tức
+  // 1. Khởi tạo SDK và kiểm tra bộ nhớ cũ
   useEffect(() => {
-    const initPi = async () => {
-      if (typeof window !== 'undefined' && (window as any).Pi) {
-        await (window as any).Pi.init({ version: "2.0", sandbox: false });
-        console.log("Pi SDK Ready!");
-      }
-    };
-    initPi();
-    
-    // Kiểm tra xem đã đăng nhập trước đó chưa
-    const saved = localStorage.getItem('pi_verified_id');
-    if (saved) setPiUser(JSON.parse(saved));
+    const saved = localStorage.getItem('pi_id_final');
+    if (saved) setUser(JSON.parse(saved));
   }, []);
 
-  // 2. Hàm xử lý đăng nhập - Đã tối ưu hóa để không bị treo
-  const handleLogin = useCallback(async () => {
+  // 2. Hàm đăng nhập (Đã sửa lỗi đứng im)
+  const handleAuth = async () => {
     if (loading) return;
     setLoading(true);
 
     if (typeof window !== 'undefined' && (window as any).Pi) {
+      const Pi = (window as any).Pi;
+      
       try {
-        const Pi = (window as any).Pi;
-        
-        // Gọi xác thực và xử lý kết quả ngay lập tức
+        // Khởi tạo lại mạch máu
+        await Pi.init({ version: "2.0", sandbox: false });
+
+        // Gửi lệnh xác thực ID
         Pi.authenticate(['username'], (auth: any) => {
-          const userData = {
-            username: auth.user.username,
-            uid: auth.user.uid
-          };
-          // CẬP NHẬT TRẠNG THÁI NGAY LẬP TỨC
-          setPiUser(userData);
-          localStorage.setItem('pi_verified_id', JSON.stringify(userData));
+          // KHI BOSS BẤM ALLOW - MẠCH CHẠY VÀO ĐÂY
+          const userData = { username: auth.user.username, uid: auth.user.uid };
+          setUser(userData);
+          localStorage.setItem('pi_id_final', JSON.stringify(userData));
           setLoading(false);
-          console.log("Xác thực thành công!");
+          console.log("Thành công!");
         }, (err: any) => {
           console.error(err);
           setLoading(false);
-          alert("Lỗi xác thực: Boss hãy thử lại!");
+          // Nếu bị treo, cho phép bấm lại sau 2 giây
+          setTimeout(() => setLoading(false), 2000);
         });
-      } catch (error) {
+
+      } catch (e) {
         setLoading(false);
-        console.error("Auth error:", error);
+        alert("Mạch Pi chưa sẵn sàng, Boss đợi 2 giây rồi bấm lại nhé!");
       }
     } else {
       setLoading(false);
-      alert("Vui lòng mở trong Pi Browser!");
+      alert("Hãy mở trong Pi Browser!");
     }
-  }, [loading]);
+  };
 
-  // MÀN HÌNH SAU KHI BẤM ALLOW THÀNH CÔNG
-  if (piUser) {
+  // MÀN HÌNH SAU KHI THÔNG MẠCH (SẼ HIỆN TÊN BOSS)
+  if (user) {
     return (
       <div style={{ height: '100vh', backgroundColor: '#000', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-        <div style={{ padding: '30px', border: '2px solid #ffcc00', borderRadius: '25px', boxShadow: '0 0 20px rgba(255, 204, 0, 0.2)' }}>
-          <h2 style={{ color: '#ffcc00', fontSize: '18px', marginBottom: '10px' }}>XÁC THỰC THÀNH CÔNG ✅</h2>
-          <p style={{ fontSize: '28px', fontWeight: 'bold' }}>@{piUser.username}</p>
-          <p style={{ color: '#444', fontSize: '12px', marginTop: '10px' }}>UID: {piUser.uid}</p>
+        <div style={{ padding: '30px', border: '3px solid #ffcc00', borderRadius: '30px', backgroundColor: '#111' }}>
+          <h2 style={{ color: '#ffcc00', fontSize: '20px' }}>ID ĐÃ THÔNG MẠCH ✅</h2>
+          <p style={{ fontSize: '32px', fontWeight: 'bold', margin: '20px 0' }}>@{user.username}</p>
+          <div style={{ fontSize: '12px', color: '#444' }}>UID: {user.uid}</div>
         </div>
-        <button 
-          onClick={() => { localStorage.clear(); window.location.reload(); }}
-          style={{ marginTop: '40px', color: '#666', background: 'none', border: 'none', textDecoration: 'underline', cursor: 'pointer' }}
-        >
-          Đăng xuất để thử lại
+        <button onClick={() => { localStorage.clear(); window.location.reload(); }} style={{ marginTop: '50px', color: '#888', background: 'none', border: 'none', textDecoration: 'underline' }}>
+          Thoát để kiểm tra lại
         </button>
       </div>
     );
   }
 
-  // MÀN HÌNH ĐĂNG NHẬP (TRẠNG THÁI BOSS ĐANG GẶP)
+  // MÀN HÌNH ĐĂNG NHẬP (CHỐNG TREO)
   return (
     <div style={{ height: '100vh', backgroundColor: '#000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', padding: '20px' }}>
-      <div style={{ width: '85px', height: '85px', backgroundColor: '#ffcc00', borderRadius: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '45px', color: '#000', fontWeight: 'bold', marginBottom: '30px', boxShadow: '0 0 25px rgba(255, 204, 0, 0.4)' }}>π</div>
-      <h1 style={{ fontSize: '24px', fontWeight: '900', letterSpacing: '2px', marginBottom: '10px' }}>CONNECT-PI</h1>
-      <p style={{ color: '#888', textAlign: 'center', fontSize: '14px', marginBottom: '40px' }}>
-        {loading ? 'ĐANG ĐỢI PI PHẢN HỒI...' : 'Vui lòng xác thực để lấy ID tài khoản'}
-      </p>
+      <div style={{ width: '90px', height: '90px', backgroundColor: '#ffcc00', borderRadius: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '50px', color: '#000', fontWeight: 'bold', marginBottom: '30px', boxShadow: '0 0 30px #ffcc00' }}>π</div>
+      <h1 style={{ fontSize: '26px', fontWeight: '900', marginBottom: '40px' }}>CONNECT-PI</h1>
       
       <button 
-        onClick={handleLogin}
-        disabled={loading}
-        style={{ width: '100%', maxWidth: '300px', padding: '18px', backgroundColor: loading ? '#444' : '#ffcc00', color: '#000', border: 'none', borderRadius: '40px', fontWeight: '900', fontSize: '16px', cursor: 'pointer' }}
+        onClick={handleAuth}
+        style={{ 
+          width: '100%', maxWidth: '300px', padding: '20px', 
+          backgroundColor: '#ffcc00', color: '#000', border: 'none', 
+          borderRadius: '50px', fontWeight: '900', fontSize: '18px', cursor: 'pointer',
+          boxShadow: loading ? 'none' : '0 10px 20px rgba(255, 204, 0, 0.3)'
+        }}
       >
-        {loading ? 'VUI LÒNG ĐỢI...' : 'KẾT NỐI NGAY 🚀'}
+        {loading ? 'ĐANG ĐỢI BOSS BẤM ALLOW...' : 'KẾT NỐI ID PI 🚀'}
       </button>
+
+      {loading && (
+        <div style={{ marginTop: '30px', textAlign: 'center' }}>
+           <p style={{ color: '#ffcc00', fontWeight: 'bold' }}>MẠCH ĐANG MỞ!</p>
+           <p style={{ color: '#666', fontSize: '12px' }}>Nếu bảng màu tím biến mất mà vẫn chưa vào được,<br/>Boss hãy bấm nút trên một lần nữa!</p>
+        </div>
+      )}
     </div>
   );
 }
