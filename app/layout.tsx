@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import Script from "next/script";
-import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Connect-Pi Supreme",
@@ -18,13 +14,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* MẠCH MÁU CHÍNH: Nạp SDK trước khi bất kỳ code nào khác chạy */}
+        {/* Nạp SDK của Pi Network trước khi ứng dụng chạy */}
         <Script 
           src="https://sdk.minepi.com/pi-sdk.js" 
-          strategy="beforeInteractive"
+          strategy="beforeInteractive" 
         />
       </head>
-      <body className={inter.className} style={{ margin: 0, padding: 0, backgroundColor: '#000' }}>
+      <body style={{ 
+        margin: 0, 
+        padding: 0, 
+        backgroundColor: '#000', 
+        color: '#fff',
+        fontFamily: 'sans-serif' 
+      }}>
         {children}
       </body>
     </html>
