@@ -14,28 +14,20 @@ export default function SupremeMasterApp() {
         <>
           <div style={{ position: 'absolute', top: '20px', right: '15px', zIndex: 100, opacity: 0.8 }}><SupremeIcon name="search" size={24} /></div>
 
-          {/* 1. CỘT PHẢI: XÓA SỐ 92 & DÀN ĐỀU NÚT TIM */}
-          <div style={{ 
-            position: 'absolute', right: '10px', bottom: '25px', 
-            display: 'flex', flexDirection: 'column', 
-            gap: '28px', // Giãn cách chuẩn đồng đều cho toàn bộ hàng
-            alignItems: 'center', zIndex: 100 
-          }}>
-            {/* Nút Tim #1 đã bỏ số 92 và căn chỉnh lại khoảng cách */}
+          {/* CỘT PHẢI: DÀN ĐỀU 6 NÚT SÁT ĐÁY */}
+          <div style={{ position: 'absolute', right: '10px', bottom: '25px', display: 'flex', flexDirection: 'column', gap: '28px', alignItems: 'center', zIndex: 100 }}>
             <SupremeIcon name="heart" size={30} /> 
-            
             <SupremeIcon name="comment" size={28} />
             <SupremeIcon name="share" size={28} />
             <SupremeIcon name="save" size={28} />
             
-            {/* Nút loa #11 chuẩn 3 ngăn */}
             <div style={{ position: 'relative' }}>
               <div onClick={() => setShowVolMenu(!showVolMenu)} style={{ cursor: 'pointer' }}>
                 <SupremeIcon name="volume" size={28} flip={true} color={isMuted ? "#ff4444" : "#fff"} />
               </div>
               {showVolMenu && (
                 <div style={{ position: 'absolute', right: '45px', bottom: '0', width: '150px', backgroundColor: 'rgba(10,10,10,0.98)', borderRadius: '10px', border: '0.5px solid #333', overflow: 'hidden' }}>
-                  <div onClick={() => {setIsMuted(!isMuted); setShowVolMenu(false)}} style={{ padding: '12px', fontSize: '12px' }}>
+                  <div onClick={() => {setIsMuted(!isMuted); setShowVolMenu(false)}} style={{ padding: '12px', fontSize: '12px', cursor: 'pointer' }}>
                     {isMuted ? "🔈 Mở âm thanh" : "🔇 Tắt âm thanh"}
                   </div>
                   <div style={{ height: '0.5px', backgroundColor: '#222' }}></div>
@@ -46,11 +38,10 @@ export default function SupremeMasterApp() {
               )}
             </div>
 
-            {/* Nút V #5 khôi phục tác dụng */}
             <div onClick={() => setShowVolMenu(false)} style={{ cursor: 'pointer' }}><SupremeIcon name="chevron" size={28} /></div>
           </div>
 
-          {/* CỤM THÔNG TIN BÊN TRÁI (#14 Cửa hàng cá nhân) */}
+          {/* CỤM THÔNG TIN TRÁI (#14 Cửa hàng cá nhân) */}
           <div style={{ position: 'absolute', bottom: '45px', left: '12px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ width: '26px', height: '26px', borderRadius: '6px', border: '1px solid #ffcc00', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <SupremeIcon name="store" size={16} color="#ffcc00" />
@@ -67,7 +58,7 @@ export default function SupremeMasterApp() {
         </>
       )}
 
-      {/* THANH ĐIỀU HƯỚNG (#9 Siêu thị & #7 Home) */}
+      {/* THANH ĐIỀU HƯỚNG DƯỚI (#9 Siêu thị & #7 Home) */}
       <div style={{ position: 'fixed', bottom: '5px', width: '100%', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent', zIndex: 1000 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '35px', backgroundColor: 'rgba(0,0,0,0.3)', padding: '5px 25px', borderRadius: '30px' }}>
           {/* #9: Siêu thị */}
@@ -87,4 +78,4 @@ export default function SupremeMasterApp() {
       </div>
     </div>
   );
-                }
+}
