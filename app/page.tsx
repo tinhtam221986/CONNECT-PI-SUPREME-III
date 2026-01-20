@@ -5,6 +5,7 @@ import { SupremeIcon } from './SupremeIcons';
 export default function SupremeMasterApp() {
   const [view, setView] = useState<'feed' | 'profile' | 'upload'>('feed');
   const [showVolMenu, setShowVolMenu] = useState(false);
+  const [isMuted, setIsMuted] = useState(false); // Quản lý trạng thái loa
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', backgroundColor: '#000', overflow: 'hidden', color: '#fff', fontFamily: 'sans-serif' }}>
@@ -13,11 +14,12 @@ export default function SupremeMasterApp() {
         <>
           <div style={{ position: 'absolute', top: '20px', right: '15px', zIndex: 100, opacity: 0.8 }}><SupremeIcon name="search" size={24} /></div>
 
-          {/* 1. DÀN ĐỀU CÁC NÚT BÊN PHẢI (Lấy tim làm mốc) */}
+          {/* 1 & 3. DÀN ĐỀU CỘT PHẢI XUỐNG SÁT ĐÁY & KHÔI PHỤC NÚT V #5 */}
           <div style={{ 
-            position: 'absolute', right: '10px', bottom: '100px', 
+            position: 'absolute', right: '10px', 
+            bottom: '25px', // Kéo xuống sát đáy (cùng khoảng cách gap)
             display: 'flex', flexDirection: 'column', 
-            gap: '25px', // Tăng gap và cố định để dàn đều từ tim xuống
+            gap: '25px', 
             alignItems: 'center', zIndex: 100 
           }}>
             <div style={{ textAlign: 'center' }}><SupremeIcon name="heart" size={30} /><div style={{ fontSize: '10px', marginTop: '2px' }}>92</div></div>
@@ -25,23 +27,32 @@ export default function SupremeMasterApp() {
             <SupremeIcon name="share" size={28} />
             <SupremeIcon name="save" size={28} />
             
-            {/* 3 & 4. NÚT LOA VÀ MENU CHUẨN HÓA (Phục hồi chức năng và ngăn cách) */}
+            {/* 4. NÚT LOA 🔊 CHUẨN HÓA 3 NGĂN CHỨC NĂNG */}
             <div style={{ position: 'relative' }}>
-              <div onClick={() => setShowVolMenu(!showVolMenu)} style={{ cursor: 'pointer' }}><SupremeIcon name="volume" size={28} flip={true} /></div>
+              <div onClick={() => setShowVolMenu(!showVolMenu)} style={{ cursor: 'pointer' }}>
+                <SupremeIcon name="volume" size={28} flip={true} color={isMuted ? "#ff4444" : "#fff"} />
+              </div>
               {showVolMenu && (
-                <div style={{ position: 'absolute', right: '45px', bottom: '0', width: '130px', backgroundColor: 'rgba(15,15,15,0.95)', borderRadius: '10px', border: '0.5px solid #333', boxShadow: '0 4px 15px rgba(0,0,0,0.5)' }}>
-                  <div style={{ padding: '12px', fontSize: '12px', color: '#fff' }}>Âm thanh: Bật</div>
-                  <div style={{ height: '0.5px', backgroundColor: '#333', margin: '0 10px' }}></div> {/* Ngăn cách chuẩn */}
-                  <div style={{ padding: '12px', fontSize: '12px', color: '#fff' }}>Lưu âm thanh</div>
+                <div style={{ position: 'absolute', right: '45px', bottom: '0', width: '150px', backgroundColor: 'rgba(15,15,15,0.98)', borderRadius: '10px', border: '0.5px solid #333', overflow: 'hidden' }}>
+                  <div onClick={() => {setIsMuted(!isMuted); setShowVolMenu(false)}} style={{ padding: '12px', fontSize: '12px', cursor: 'pointer' }}>
+                    {isMuted ? "🔈 Mở âm thanh" : "🔇 Tắt âm thanh"}
+                  </div>
+                  <div style={{ height: '0.5px', backgroundColor: '#333' }}></div>
+                  <div style={{ padding: '12px', fontSize: '12px', cursor: 'pointer' }}>🎵 Lưu âm thanh</div>
+                  <div style={{ height: '0.5px', backgroundColor: '#333' }}></div>
+                  <div style={{ padding: '12px', fontSize: '12px', cursor: 'pointer' }}>✨ Sử dụng</div>
                 </div>
               )}
             </div>
-            {/* 3. NÚT V #5 PHỤC HỒI TÁC DỤNG (Bấm để đổi view hoặc đóng menu) */}
-            <div onClick={() => setShowVolMenu(false)} style={{ cursor: 'pointer' }}><SupremeIcon name="chevron" size={28} /></div>
+
+            {/* 3. KHÔI PHỤC TÁC DỤNG NÚT V #5 */}
+            <div onClick={() => { setShowVolMenu(false); /* Thêm logic chuyển video tại đây */ }} style={{ cursor: 'pointer', transform: 'rotate(0deg)' }}>
+              <SupremeIcon name="chevron" size={28} />
+            </div>
           </div>
 
-          {/* 5. CỤM THÔNG TIN BÊN TRÁI (Hạ thấp xuống gần thanh điều hướng) */}
-          <div style={{ position: 'absolute', bottom: '85px', left: '12px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {/* 5. CỤM THÔNG TIN BÊN TRÁI (Kéo xuống sát đáy) */}
+          <div style={{ position: 'absolute', bottom: '45px', left: '12px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ width: '24px', height: '24px', borderRadius: '5px', border: '0.8px solid #ffcc00', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><SupremeIcon name="store" size={14} color="#ffcc00" /></div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid #fff', backgroundColor: '#222' }} />
@@ -55,30 +66,31 @@ export default function SupremeMasterApp() {
         </>
       )}
 
-      {/* 2 & 6. THANH ĐIỀU HƯỚNG TRONG SUỐT & THU GỌN KHOẢNG CÁCH NÚT */}
+      {/* 2. THANH ĐIỀU HƯỚNG SÁT MÉP DƯỚI & THU NHỎ NÚT + #8 */}
       <div style={{ 
-        position: 'fixed', bottom: 0, width: '100%', height: '65px', 
-        display: 'flex', alignItems: 'center', justifyContent: 'center', // Căn giữa toàn bộ cụm nút
-        backgroundColor: 'transparent', // Trong suốt hoàn toàn
-        zIndex: 1000 
+        position: 'fixed', bottom: '5px', // Sát mép dưới cùng
+        width: '100%', height: '45px', 
+        display: 'flex', alignItems: 'center', justifyContent: 'center', 
+        backgroundColor: 'transparent', zIndex: 1000 
       }}>
-        {/* Container bọc các nút để co cụm lại, không dàn trải hết màn hình */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '30px', backgroundColor: 'rgba(0,0,0,0.4)', padding: '10px 25px', borderRadius: '30px' }}>
-          <div onClick={() => setView('feed')} style={{ opacity: view === 'feed' ? 1 : 0.4 }}><SupremeIcon name="cart" size={22} /></div>
-          <div style={{ opacity: 0.4 }}><SupremeIcon name="global" size={22} /></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '35px', backgroundColor: 'rgba(0,0,0,0.3)', padding: '5px 25px', borderRadius: '30px' }}>
+          <div onClick={() => setView('feed')} style={{ opacity: 0.9 }}><SupremeIcon name="cart" size={22} /></div>
+          <div style={{ opacity: 0.9 }}><SupremeIcon name="global" size={22} /></div>
           
+          {/* NÚT + #8 (Thu nhỏ bằng 3/5 kích thước cũ) */}
           <div onClick={() => setView('upload')} style={{ 
-            width: '42px', height: '28px', borderRadius: '8px', border: '1.5px solid #ffcc00', 
+            width: '30px', height: '20px', // Đã thu nhỏ
+            borderRadius: '5px', border: '1.2px solid #ffcc00', 
             display: 'flex', alignItems: 'center', justifyContent: 'center', 
             backgroundColor: view === 'upload' ? '#ffcc00' : 'transparent' 
           }}>
-            <SupremeIcon name="plus" size={18} color={view === 'upload' ? "#000" : "#ffcc00"} />
+            <SupremeIcon name="plus" size={14} color={view === 'upload' ? "#000" : "#ffcc00"} />
           </div>
 
-          <div onClick={() => setView('feed')} style={{ opacity: view === 'feed' ? 1 : 0.4 }}><SupremeIcon name="home" size={22} /></div>
-          <div style={{ opacity: 0.4 }}><SupremeIcon name="mail" size={22} /></div>
+          <div onClick={() => setView('feed')} style={{ opacity: 0.9 }}><SupremeIcon name="home" size={22} /></div>
+          <div style={{ opacity: 0.9 }}><SupremeIcon name="mail" size={22} /></div>
         </div>
       </div>
     </div>
   );
-            }
+      }
