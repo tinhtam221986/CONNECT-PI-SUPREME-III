@@ -1,101 +1,113 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Script from "next/script";
+import { SupremeIcon } from './SupremeIcons';
+import ProfilePage from './ProfilePage';
 
 export default function SupremeMasterApp() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [view, setView] = useState<'feed' | 'profile'>('feed');
 
-  // 1. Tự động kiểm tra bộ nhớ khi vừa mở App
+  // 1. Tự động thông mạch nếu đã đăng nhập trước đó
   useEffect(() => {
-    const saved = localStorage.getItem('pi_verified_id');
-    if (saved) {
-      setUser(JSON.parse(saved));
-    }
+    const saved = localStorage.getItem('pi_verified_id_v6');
+    if (saved) setUser(JSON.parse(saved));
   }, []);
 
-  // 2. Hàm kích hoạt xác thực
-  const handleAuth = async () => {
+  // 2. Hàm đăng nhập chuẩn Pi Network (Không bao giờ treo)
+  const handleAuth = () => {
     if (loading) return;
     setLoading(true);
 
     if (typeof window !== 'undefined' && (window as any).Pi) {
       const Pi = (window as any).Pi;
       
-      try {
-        // Khởi tạo SDK
-        Pi.init({ version: "2.0", sandbox: false });
+      // Khởi tạo SDK
+      Pi.init({ version: "2.0", sandbox: false });
 
-        // Gọi xác thực ID
-        Pi.authenticate(['username'], (auth: any) => {
-          // KHI BOSS BẤM ALLOW, ĐOẠN NÀY PHẢI CHẠY NGAY:
-          const userData = { 
-            username: auth.user.username, 
-            uid: auth.user.uid 
-          };
-          
-          // LƯU VÀO BỘ NHỚ VÀ CẬP NHẬT MÀN HÌNH
-          localStorage.setItem('pi_verified_id', JSON.stringify(userData));
-          setUser(userData); 
-          setLoading(false);
-          console.log("Đã thông mạch!");
-        }, (err: any) => {
-          console.error(err);
-          setLoading(false);
-          alert("Mạch bận, Boss hãy thử lại!");
-        });
-      } catch (e) {
+      // Gọi xác thực ID (Chỉ lấy username để bảo mật)
+      Pi.authenticate(['username'], (auth: any) => {
+        const userData = { 
+          username: auth.user.username, 
+          uid: auth.user.uid 
+        };
+        localStorage.setItem('pi_id_verified_v6', JSON.stringify(userData));
+        setUser(userData);
         setLoading(false);
-      }
+      }, (err: any) => {
+        console.error(err);
+        setLoading(false);
+        alert("Mạch Pi chưa phản hồi. Boss hãy thử Refresh trang rồi bấm lại nhé!");
+      });
     } else {
       setLoading(false);
-      alert("Hãy mở App trong Pi Browser!");
+      alert("Boss hãy mở App trong Pi Browser!");
     }
   };
 
-  // --- GIAO DIỆN SAU KHI ĐĂNG NHẬP THÀNH CÔNG ---
+  // --- MÀN HÌNH CHÍNH (SAU KHI ĐĂNG NHẬP THÀNH CÔNG) ---
   if (user) {
     return (
-      <div style={{ height: '100vh', backgroundColor: '#000', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ padding: '40px', border: '3px solid #ffcc00', borderRadius: '30px', textAlign: 'center', backgroundColor: '#111' }}>
-          <h2 style={{ color: '#ffcc00', marginBottom: '20px' }}>XÁC THỰC THÀNH CÔNG ✅</h2>
-          <p style={{ fontSize: '30px', fontWeight: 'bold' }}>@{user.username}</p>
-          <p style={{ color: '#444', marginTop: '10px' }}>ID: {user.uid}</p>
-          
-          <div style={{ marginTop: '40px', padding: '15px', backgroundColor: '#ffcc00', color: '#000', borderRadius: '15px', fontWeight: 'bold' }}>
-            CHÀO MỪNG BOSS ĐẾN VỚI SUPREME 💎
+      <div style={{ position: 'relative', width: '100vw', height: '100vh', backgroundColor: '#000', color: '#fff' }}>
+        {view === 'feed' ? (
+          <>
+            {/* VIDEO FEED - MẠCH MÁU NỘI DUNG */}
+            <video 
+              autoPlay loop muted playsInline 
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} 
+              src="https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4" 
+            />
+            
+            {/* THANH ĐIỀU HƯỚNG BÊN PHẢI */}
+            <div style={{ position: 'absolute', right: '15px', bottom: '120px', display: 'flex', flexDirection: 'column', gap: '25px', zIndex: 10 }}>
+              <div style={{ textAlign: 'center' }}><SupremeIcon name="heart" size={35} color="#fff" /><p style={{ fontSize: '10px' }}>99K</p></div>
+              <div style={{ textAlign: 'center' }}><SupremeIcon name="comment" size={35} color="#fff" /><p style={{ fontSize: '10px' }}>22K</p></div>
+              <div onClick={() => setView('profile')} style={{ width: '45px', height: '45px', borderRadius: '50%', border: '2px solid #ffcc00', overflow: 'hidden', cursor: 'pointer' }}>
+                <div style={{ width: '100%', height: '100%', backgroundColor: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <SupremeIcon name="store" size={24} color="#ffcc00" />
+                </div>
+              </div>
+            </div>
+
+            {/* THÔNG TIN BOSS Ở GÓC TRÁI */}
+            <div style={{ position: 'absolute', bottom: '110px', left: '15px', zIndex: 10 }}>
+              <p style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: '5px' }}>@{user.username}</p>
+              <p style={{ fontSize: '14px', opacity: 0.9 }}>Tầm nhìn Connect-Pi: Dữ liệu là mạch máu 🚀</p>
+            </div>
+          </>
+        ) : (
+          <ProfilePage /> 
+        )}
+
+        {/* THANH NAVBAR ĐÁY */}
+        <div style={{ position: 'fixed', bottom: '25px', width: '100%', display: 'flex', justifyContent: 'center', zIndex: 100 }}>
+          <div style={{ display: 'flex', gap: '50px', backgroundColor: 'rgba(0,0,0,0.85)', padding: '15px 40px', borderRadius: '40px', border: '1px solid #333', backdropFilter: 'blur(10px)' }}>
+            <div onClick={() => setView('feed')}><SupremeIcon name="home" size={26} color={view === 'feed' ? '#ffcc00' : '#fff'} /></div>
+            <SupremeIcon name="cart" size={26} color="#fff" />
+            <div onClick={() => setView('profile')}><SupremeIcon name="store" size={26} color={view === 'profile' ? '#ffcc00' : '#fff'} /></div>
           </div>
         </div>
-        
-        <button onClick={() => { localStorage.clear(); window.location.reload(); }} style={{ marginTop: '50px', color: '#666', background: 'none', border: 'none', textDecoration: 'underline' }}>
-          Đăng xuất
-        </button>
       </div>
     );
   }
 
-  // --- GIAO DIỆN ĐĂNG NHẬP (ẢNH BOSS GỬI) ---
+  // --- MÀN HÌNH CHỜ (LOGIN) ---
   return (
-    <>
-      <Script src="https://sdk.minepi.com/pi-sdk.js" strategy="afterInteractive" />
-      <div style={{ height: '100vh', backgroundColor: '#000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px' }}>
-        <div style={{ width: '90px', height: '90px', backgroundColor: '#ffcc00', borderRadius: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '50px', fontWeight: 'bold', color: '#000', marginBottom: '30px', boxShadow: '0 0 30px #ffcc00' }}>π</div>
-        <h1 style={{ color: '#fff', fontSize: '28px', fontWeight: '900', letterSpacing: '2px', marginBottom: '40px' }}>CONNECT-PI</h1>
-        
-        <button 
-          onClick={handleAuth}
-          disabled={loading}
-          style={{ width: '100%', maxWidth: '320px', padding: '20px', backgroundColor: '#ffcc00', color: '#000', border: 'none', borderRadius: '50px', fontWeight: '900', fontSize: '18px', cursor: 'pointer', transition: '0.3s' }}
-        >
-          {loading ? 'ĐANG LẤY ID...' : 'ĐĂNG NHẬP PI NETWORK 🚀'}
-        </button>
-
-        {loading && (
-          <p style={{ color: '#ffcc00', marginTop: '20px', textAlign: 'center', fontWeight: 'bold' }}>
-            MẠCH ĐANG KẾT NỐI...<br/>Boss hãy đợi 3-5 giây nhé!
-          </p>
-        )}
-      </div>
-    </>
+    <div style={{ height: '100vh', backgroundColor: '#000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', padding: '20px' }}>
+      <div style={{ width: '90px', height: '90px', backgroundColor: '#ffcc00', borderRadius: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '50px', color: '#000', fontWeight: 'bold', marginBottom: '30px', boxShadow: '0 0 30px #ffcc00' }}>π</div>
+      <h1 style={{ fontSize: '28px', fontWeight: '900', letterSpacing: '2px', marginBottom: '10px' }}>CONNECT-PI</h1>
+      <p style={{ color: '#555', marginBottom: '40px' }}>SUPREME ECOSYSTEM v6.0</p>
+      
+      <button 
+        onClick={handleAuth}
+        style={{ width: '300px', padding: '20px', backgroundColor: '#ffcc00', color: '#000', border: 'none', borderRadius: '50px', fontWeight: '900', fontSize: '18px', cursor: 'pointer' }}
+      >
+        {loading ? 'ĐANG KẾT NỐI...' : 'XÁC THỰC DANH TÍNH 🚀'}
+      </button>
+      
+      {loading && <p style={{ marginTop: '20px', color: '#ffcc00' }}>Vui lòng bấm 'Allow' trên màn hình Pi...</p>}
+    </div>
   );
 }
+  
