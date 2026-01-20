@@ -28,3 +28,4 @@ export const SupremeIcon = ({ name, size = 30, color = "#FFFFFF", flip = false }
     </svg>
   );
 };
+
