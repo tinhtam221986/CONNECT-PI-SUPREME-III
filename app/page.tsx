@@ -2,72 +2,72 @@
 import React, { useState, useEffect } from 'react';
 
 export default function SupremeMasterApp() {
-  const [user, setUser] = useState<any>(null);
+  const [piUser, setPiUser] = useState<{username: string, uid: string} | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Khởi tạo ngay khi vừa vào trang
   useEffect(() => {
+    // Khởi tạo SDK ngay khi vào trang
     if (typeof window !== 'undefined' && (window as any).Pi) {
       (window as any).Pi.init({ version: "2.0", sandbox: false });
     }
-    
-    const saved = localStorage.getItem('pi_final_session');
-    if (saved) setUser(JSON.parse(saved));
+    // Kiểm tra nếu đã có ID lưu trong máy
+    const savedId = localStorage.getItem('pi_id_verified');
+    if (savedId) setPiUser(JSON.parse(savedId));
   }, []);
 
-  const handleAuth = () => {
+  const handleLogin = () => {
     if (loading) return;
     setLoading(true);
 
     if (typeof window !== 'undefined' && (window as any).Pi) {
       const Pi = (window as any).Pi;
       
-      // Lệnh cưỡng chế bật cửa sổ tím
-      Pi.authenticate(['username', 'payments'], (auth: any) => {
-        const userData = { username: `@${auth.user.username}` };
-        setUser(userData);
-        localStorage.setItem('pi_final_session', JSON.stringify(userData));
+      // CHỈ YÊU CẦU: Tên người dùng (Username)
+      // KHÔNG YÊU CẦU: Quyền thanh toán hay ví
+      Pi.authenticate(['username'], (auth: any) => {
+        const userData = {
+          username: auth.user.username, // Đây là ID/Username Boss cần
+          uid: auth.user.uid            // Mã định danh duy nhất của Pi
+        };
+        setPiUser(userData);
+        localStorage.setItem('pi_id_verified', JSON.stringify(userData));
         setLoading(false);
       }, (err: any) => {
-        console.error(err);
+        console.error("Lỗi đăng nhập:", err);
         setLoading(false);
-        alert("Boss cần bấm 'Allow' để hiện tên thật!");
+        alert("Xác thực ID thất bại. Boss hãy thử lại!");
       });
     } else {
       setLoading(false);
-      alert("Hãy mở trong Pi Browser!");
+      alert("Vui lòng mở trong trình duyệt Pi Browser!");
     }
   };
 
-  if (!user) {
+  if (piUser) {
     return (
-      <div style={{ height: '100vh', backgroundColor: '#000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-        <div style={{ width: '80px', height: '80px', backgroundColor: '#ffcc00', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', color: '#000', fontWeight: 'bold', marginBottom: '30px' }}>π</div>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '40px' }}>CONNECT-PI</h1>
-        
-        <button 
-          onClick={handleAuth}
-          style={{ 
-            width: '100%', maxWidth: '280px', padding: '18px', 
-            backgroundColor: '#ffcc00', color: '#000', border: 'none', 
-            borderRadius: '40px', fontWeight: '900', fontSize: '16px', cursor: 'pointer' 
-          }}
-        >
-          {loading ? 'ĐANG KẾT NỐI...' : 'ĐĂNG NHẬP PI NETWORK 🚀'}
-        </button>
-        
-        {loading && <p style={{ marginTop: '20px', color: '#ffcc00' }}>Vui lòng đợi bảng xác thực hiện lên...</p>}
+      <div style={{ height: '100vh', backgroundColor: '#000', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ padding: '20px', border: '2px solid #ffcc00', borderRadius: '15px', textAlign: 'center' }}>
+          <h2 style={{ color: '#ffcc00' }}>ID PI ĐÃ XÁC THỰC ✅</h2>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '15px 0' }}>@{piUser.username}</p>
+          <p style={{ color: '#666', fontSize: '12px' }}>UID: {piUser.uid}</p>
+        </div>
+        <button onClick={() => { localStorage.clear(); window.location.reload(); }} style={{ marginTop: '30px', color: '#fff', opacity: 0.5 }}>Đăng xuất</button>
       </div>
     );
   }
 
-  // MÀN HÌNH KHI ĐÃ HIỆN TÊN THẬT
   return (
-    <div style={{ height: '100vh', backgroundColor: '#000', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-       <div style={{ width: '100px', height: '100px', borderRadius: '50%', border: '3px solid #ffcc00', marginBottom: '20px' }} />
-       <h2 style={{ fontSize: '26px', fontWeight: 'bold' }}>{user.username}</h2>
-       <p style={{ color: '#ffcc00', marginTop: '10px' }}>TÀI KHOẢN ĐÃ THÔNG MẠCH ✅</p>
-       <button onClick={() => { localStorage.clear(); window.location.reload(); }} style={{ marginTop: '50px', opacity: 0.5, color: '#fff', background: 'none', border: 'none', textDecoration: 'underline' }}>Thoát</button>
+    <div style={{ height: '100vh', backgroundColor: '#000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+      <div style={{ width: '80px', height: '80px', backgroundColor: '#ffcc00', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', color: '#000', fontWeight: 'bold', marginBottom: '20px' }}>π</div>
+      <h1 style={{ marginBottom: '40px', letterSpacing: '2px' }}>CONNECT-PI</h1>
+      
+      <button 
+        onClick={handleLogin}
+        style={{ width: '280px', padding: '18px', backgroundColor: '#ffcc00', color: '#000', border: 'none', borderRadius: '40px', fontWeight: '900', fontSize: '16px', cursor: 'pointer' }}
+      >
+        {loading ? 'ĐANG LẤY ID...' : 'XÁC THỰC ID TÀI KHOẢN 🚀'}
+      </button>
+      {loading && <p style={{ marginTop: '20px', color: '#ffcc00' }}>Vui lòng bấm 'Allow' trên cửa sổ Pi để cung cấp ID</p>}
     </div>
   );
 }
