@@ -6,107 +6,96 @@ export default function SupremeMasterApp() {
   const [user, setUser] = useState<any>(null);
   const [status, setStatus] = useState<'idle' | 'loading' | 'connected'>('idle');
 
-  // --- MẠCH 1: KHỞI TẠO SDK NGAY KHI TRANG TẢI XONG ---
-  const onPiScriptLoad = () => {
+  // 1. Khởi tạo mạch khi Script tải xong
+  const initPi = () => {
     if (typeof window !== 'undefined' && (window as any).Pi) {
       try {
         (window as any).Pi.init({ version: "2.0", sandbox: false });
-        console.log("Mạch SDK đã sẵn sàng! 🚀");
-      } catch (e) {
-        console.error("Lỗi khởi tạo SDK:", e);
-      }
+        console.log("Mạch Pi sẵn sàng!");
+      } catch (e) { console.error("Pi Init Error", e); }
     }
   };
 
-  // --- MẠCH 2: XỬ LÝ ĐĂNG NHẬP (GỌI TRỰC TIẾP) ---
+  // 2. Hàm kết nối chính (Có bộ cứu hộ 5 giây)
   const handleConnect = () => {
     if (typeof window !== 'undefined' && (window as any).Pi) {
-      const Pi = (window as any).Pi;
       setStatus('loading');
+      const Pi = (window as any).Pi;
 
-      // Gọi lệnh xác thực ngay lập tức khi người dùng bấm
-      Pi.authenticate(['username', 'payments'], (auth: any) => {
-        const userData = {
-          username: `@${auth.user.username}`,
-          uid: auth.user.uid
-        };
-        setUser(userData);
-        setStatus('connected');
-        localStorage.setItem('pi_session_v4', JSON.stringify(userData));
-      }, (err: any) => {
-        console.error("Lỗi xác thực:", err);
+      // Bộ cứu hộ: Nếu 5s không phản hồi, cho phép bấm lại
+      const rescueTimer = setTimeout(() => {
+        if (status === 'loading') {
+          setStatus('idle');
+          alert("Mạch Pi phản hồi chậm, Boss hãy thử bấm lại lần nữa nhé!");
+        }
+      }, 5000);
+
+      try {
+        Pi.authenticate(['username', 'payments'], (auth: any) => {
+          clearTimeout(rescueTimer);
+          const userData = {
+            username: `@${auth.user.username}`,
+            uid: auth.user.uid
+          };
+          setUser(userData);
+          setStatus('connected');
+          localStorage.setItem('pi_session_final', JSON.stringify(userData));
+        }, (err: any) => {
+          clearTimeout(rescueTimer);
+          console.error(err);
+          setStatus('idle');
+        });
+      } catch (e) {
+        clearTimeout(rescueTimer);
         setStatus('idle');
-        alert("Xác thực không thành công. Boss hãy thử bấm lại!");
-      });
+      }
     } else {
-      alert("Boss cần mở Link trong Pi Browser!");
+      alert("Hãy mở ứng dụng trong Pi Browser!");
     }
   };
 
-  // Tự động khôi phục phiên cũ
   useEffect(() => {
-    const saved = localStorage.getItem('pi_session_v4');
+    const saved = localStorage.getItem('pi_session_final');
     if (saved) {
       setUser(JSON.parse(saved));
       setStatus('connected');
     }
   }, []);
 
-  // --- GIAO DIỆN CỔNG ĐĂNG NHẬP ---
+  // GIAO DIỆN CHUẨN CỦA BOSS
   if (status !== 'connected') {
     return (
       <>
-        <Script 
-          src="https://sdk.minepi.com/pi-sdk.js" 
-          strategy="afterInteractive" 
-          onLoad={onPiScriptLoad}
-        />
-        <div style={{ height: '100vh', backgroundColor: '#000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px' }}>
-          <div style={{ 
-            width: '85px', height: '85px', backgroundColor: '#ffcc00', borderRadius: '25px', 
-            marginBottom: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', 
-            fontSize: '45px', fontWeight: 'bold', color: '#000', boxShadow: '0 0 30px rgba(255, 204, 0, 0.5)' 
-          }}>π</div>
+        <Script src="https://sdk.minepi.com/pi-sdk.js" strategy="afterInteractive" onLoad={initPi} />
+        <div style={{ height: '100vh', backgroundColor: '#000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px', color: '#fff' }}>
+          <div style={{ width: '80px', height: '80px', backgroundColor: '#ffcc00', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', fontWeight: 'bold', color: '#000', marginBottom: '30px' }}>π</div>
+          <h1 style={{ fontSize: '24px', fontWeight: '900', marginBottom: '10px' }}>CONNECT-PI</h1>
+          <p style={{ color: '#888', fontSize: '14px', textAlign: 'center', marginBottom: '40px' }}>
+            {status === 'loading' ? 'ĐANG KẾT NỐI VỚI PI BROWSER...' : 'Vui lòng xác thực danh tính để vào hệ thống'}
+          </p>
           
-          <h1 style={{ color: '#fff', fontSize: '24px', fontWeight: '900', letterSpacing: '2px' }}>CONNECT-PI</h1>
-          
-          <div style={{ margin: '40px 0', textAlign: 'center' }}>
-            <p style={{ color: status === 'loading' ? '#ffcc00' : '#888', fontSize: '14px', fontWeight: status === 'loading' ? 'bold' : 'normal' }}>
-              {status === 'loading' ? 'ĐANG MỞ CỬA SỔ XÁC THỰC... ⏳' : 'Bấm nút dưới để kết nối với Pi Network'}
-            </p>
-          </div>
-
           <button 
             onClick={handleConnect}
-            style={{ 
-              width: '100%', maxWidth: '320px', padding: '20px', 
-              backgroundColor: '#ffcc00', color: '#000', border: 'none', 
-              borderRadius: '40px', fontWeight: '900', fontSize: '18px', 
-              cursor: 'pointer', boxShadow: '0 4px 15px rgba(255, 204, 0, 0.3)'
-            }}
+            disabled={status === 'loading'}
+            style={{ width: '100%', maxWidth: '300px', padding: '18px', backgroundColor: '#ffcc00', color: '#000', border: 'none', borderRadius: '40px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
           >
-            {status === 'loading' ? 'VUI LÒNG ĐỢI...' : 'KẾT NỐI NGAY 🚀'}
+            {status === 'loading' ? 'VUI LÒNG ĐỢI...' : 'KẾT NỐI PI NETWORK 🚀'}
           </button>
         </div>
       </>
     );
   }
 
-  // --- MÀN HÌNH CHÍNH (SAU KHI HIỆN TÊN @tinhtam...) ---
+  // MÀN HÌNH SAU KHI THÔNG MẠCH (SẼ HIỆN @TINHTAM...)
   return (
-    <div style={{ height: '100vh', backgroundColor: '#000', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-       <div style={{ width: '110px', height: '110px', borderRadius: '50%', border: '4px solid #ffcc00', backgroundColor: '#111', marginBottom: '20px' }} />
-       <h2 style={{ fontSize: '28px', fontWeight: 'bold' }}>{user.username}</h2>
-       <div style={{ marginTop: '20px', padding: '10px 25px', backgroundColor: 'rgba(255, 204, 0, 0.1)', border: '1px solid #ffcc00', borderRadius: '12px' }}>
-          <span style={{ color: '#ffcc00', fontWeight: 'bold' }}>PI MASTER VERIFIED ✅</span>
+    <div style={{ height: '100vh', backgroundColor: '#000', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+       <div style={{ width: '100px', height: '100px', borderRadius: '50%', border: '3px solid #ffcc00', backgroundColor: '#222', marginBottom: '20px' }} />
+       <h2 style={{ fontSize: '24px', fontWeight: 'bold' }}>Tinh Tâm Pi Master</h2>
+       <p style={{ color: '#ffcc00', fontSize: '18px' }}>{user.username}</p>
+       <div style={{ marginTop: '30px', padding: '10px 20px', border: '1px solid #00ff00', color: '#00ff00', borderRadius: '10px' }}>
+         Verified Account ✅
        </div>
-       
-       <button 
-         onClick={() => { localStorage.removeItem('pi_session_v4'); window.location.reload(); }}
-         style={{ marginTop: '60px', color: '#444', background: 'none', border: 'none', textDecoration: 'underline', cursor: 'pointer', fontSize: '12px' }}
-       >
-         Thoát tài khoản
-       </button>
+       <button onClick={() => { localStorage.removeItem('pi_session_final'); window.location.reload(); }} style={{ marginTop: '50px', color: '#444', background: 'none', border: 'none', textDecoration: 'underline' }}>Thoát</button>
     </div>
   );
-}
+       }
