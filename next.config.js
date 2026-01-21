@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    // Ép Vercel bỏ qua lỗi TypeScript khi Build
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: true, // Bỏ qua lỗi TypeScript để ưu tiên Build thành công
   },
   eslint: {
-    // Bỏ qua lỗi ESLint khi Build
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: true, // Bỏ qua lỗi định dạng code
   },
 }
+
 module.exports = nextConfig
