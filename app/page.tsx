@@ -6,59 +6,72 @@ export default function SupremeMasterApp() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // 1. TỰ ĐỘNG KHÔI PHỤC KẾT NỐI
+  // 1. CẢM BIẾN TỰ ĐỘNG: Kiểm tra ID liên tục mỗi giây nếu đang treo
   useEffect(() => {
-    const saved = localStorage.getItem('pi_id_v6_2');
-    if (saved) setUser(JSON.parse(saved));
-  }, []);
+    const checkID = setInterval(() => {
+      const saved = localStorage.getItem('pi_final_v6_3');
+      if (saved && !user) {
+        setUser(JSON.parse(saved));
+        setLoading(false);
+        clearInterval(checkID);
+      }
+    }, 1000);
+    return () => clearInterval(checkID);
+  }, [user]);
 
-  // 2. HÀM KẾT NỐI SIÊU TỐC (CƠ CHẾ PHÁ BĂNG)
-  const handleAuth = async () => {
-    if (loading) return;
-    setLoading(true);
-
+  const handleAuth = () => {
     if (typeof window !== 'undefined' && (window as any).Pi) {
+      setLoading(true);
       const Pi = (window as any).Pi;
       
       try {
-        // Khởi tạo (ép buộc không dùng sandbox để thông mạch)
-        await Pi.init({ version: "2.0", sandbox: false });
+        Pi.init({ version: "2.0", sandbox: false });
 
-        // Dùng Promise để ép App không được đứng im
-        const authPromise = new Promise((resolve, reject) => {
-          Pi.authenticate(['username'], (auth: any) => resolve(auth), (err: any) => reject(err));
+        Pi.authenticate(['username'], (auth: any) => {
+          const userData = { 
+            username: auth.user.username, 
+            uid: auth.user.uid 
+          };
+          // GHI ĐÈ DỮ LIỆU VÀO BỘ NHỚ CỨNG CỦA TRÌNH DUYỆT
+          localStorage.setItem('pi_final_v6_3', JSON.stringify(userData));
+          setUser(userData);
+          setLoading(false);
+        }, (err: any) => {
+          console.error(err);
+          // NẾU LỖI, ÉP NÚT VÀNG HIỆN LẠI SAU 2 GIÂY
+          setTimeout(() => setLoading(false), 2000);
         });
 
-        const auth: any = await authPromise;
-        const userData = { username: auth.user.username, uid: auth.user.uid };
-        
-        localStorage.setItem('pi_id_v6_2', JSON.stringify(userData));
-        setUser(userData);
+        // BỘ CỨU HỘ: Sau 5 giây nếu vẫn treo, tự động Refresh lại trạng thái nút
+        setTimeout(() => {
+          if (!user) setLoading(false);
+        }, 5000);
+
+      } catch (e) {
         setLoading(false);
-      } catch (err) {
-        console.error(err);
-        setLoading(false);
-        // TỰ ĐỘNG LOAD LẠI MẠCH NẾU TREO
-        alert("Mạch vừa được Reset, Boss hãy bấm nút vàng một lần nữa nhé!");
       }
     } else {
-      setLoading(false);
-      alert("Hãy mở trong Pi Browser!");
+      alert("Boss hãy mở trong Pi Browser nhé!");
     }
   };
 
+  // --- MÀN HÌNH CHÀO MỪNG (KHI MẠCH ĐÃ THÔNG) ---
   if (user) {
     return (
-      <div style={{ height: '100vh', backgroundColor: '#000', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-        <div style={{ padding: '40px', border: '3px solid #ffcc00', borderRadius: '30px', textAlign: 'center', backgroundColor: '#111' }}>
-          <h2 style={{ color: '#ffcc00' }}>VẬN HÀNH THÀNH CÔNG! ✅</h2>
-          <p style={{ fontSize: '30px', fontWeight: 'bold', margin: '20px 0' }}>@{user.username}</p>
-          <div style={{ marginTop: '30px', padding: '15px', backgroundColor: '#ffcc00', color: '#000', borderRadius: '15px', fontWeight: 'bold' }}>CHÀO MÀNG BOSS TRỞ LẠI 👑</div>
+      <div style={{ height: '100vh', backgroundColor: '#000', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ padding: '40px', border: '4px solid #ffcc00', borderRadius: '40px', textAlign: 'center', boxShadow: '0 0 50px rgba(255,204,0,0.3)' }}>
+          <h2 style={{ color: '#ffcc00', letterSpacing: '2px' }}>VẬN HÀNH THÀNH CÔNG ✅</h2>
+          <p style={{ fontSize: '35px', fontWeight: '900', margin: '20px 0' }}>@{user.username}</p>
+          <div style={{ padding: '15px', backgroundColor: '#ffcc00', color: '#000', borderRadius: '15px', fontWeight: 'bold' }}>
+            CHÀO MỪNG BOSS TRỞ LẠI! 👑
+          </div>
         </div>
+        <button onClick={() => { localStorage.clear(); window.location.reload(); }} style={{ marginTop: '40px', color: '#444', background: 'none', border: 'none', textDecoration: 'underline' }}>Đăng xuất</button>
       </div>
     );
   }
 
+  // --- MÀN HÌNH ĐĂNG NHẬP ---
   return (
     <>
       <Script src="https://sdk.minepi.com/pi-sdk.js" strategy="afterInteractive" />
@@ -68,18 +81,30 @@ export default function SupremeMasterApp() {
         
         <button 
           onClick={handleAuth}
-          style={{ width: '100%', maxWidth: '320px', padding: '20px', backgroundColor: '#ffcc00', color: '#000', border: 'none', borderRadius: '50px', fontWeight: '900', fontSize: '18px', cursor: 'pointer' }}
+          style={{ 
+            width: '100%', maxWidth: '320px', padding: '20px', 
+            backgroundColor: loading ? '#222' : '#ffcc00', 
+            color: loading ? '#555' : '#000', 
+            border: 'none', borderRadius: '50px', fontWeight: '900', fontSize: '18px',
+            boxShadow: loading ? 'none' : '0 10px 20px rgba(255,204,0,0.2)'
+          }}
+          disabled={loading}
         >
-          {loading ? 'ĐANG KÍCH HOẠT...' : 'ĐĂNG NHẬP PI NETWORK 🚀'}
+          {loading ? 'ĐANG ĐỌC DỮ LIỆU...' : 'KẾT NỐI NGAY 🚀'}
         </button>
 
         {loading && (
           <div style={{ marginTop: '30px', textAlign: 'center' }}>
-            <p style={{ color: '#ffcc00', fontWeight: 'bold' }}>MẠCH ĐANG THÔNG!</p>
-            <p style={{ color: '#888', fontSize: '12px', marginTop: '10px' }}>Nếu Boss đã bấm Allow mà vẫn treo,<br/>hãy đợi 3 giây rồi **BẤM NÚT LẦN 2** nhé!</p>
+            <p style={{ color: '#ffcc00', fontWeight: 'bold', fontSize: '18px' }}>MẠCH ĐANG THÔNG!</p>
+            <p style={{ color: '#666', fontSize: '13px', marginTop: '10px', lineHeight: '1.5' }}>
+              Nếu bảng tím đã đóng mà vẫn treo,<br/>
+              Boss hãy đợi 5 giây rồi **BẤM LẠI NÚT VÀNG** nhé!<br/>
+              (Lần 2 sẽ kích nổ ID ngay lập tức)
+            </p>
           </div>
         )}
       </div>
     </>
   );
 }
+  
