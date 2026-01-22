@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
 import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -18,13 +17,15 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <head>
-        {/* Nạp SDK Pi Network chuẩn nhất cho Next.js 14 */}
+        {/* Nạp SDK Pi Network */}
         <Script 
           src="https://sdk.minepi.com/pi-sdk.js" 
           strategy="afterInteractive" 
         />
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className} style={{ margin: 0, padding: 0, backgroundColor: '#000' }}>
+        {children}
+      </body>
     </html>
   );
 }
