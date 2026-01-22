@@ -4,127 +4,80 @@ import React, { useState, useEffect } from 'react';
 export default function SupremeApp() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("");
 
-  // 1. Tự động kiểm tra phiên đăng nhập cũ trong máy
+  // 1. CƠ CHẾ QUÉT TỰ ĐỘNG (CỰC KỲ QUAN TRỌNG)
   useEffect(() => {
-    const saved = localStorage.getItem('pi_user_v69_final');
-    if (saved) {
-      setUser(JSON.parse(saved));
-    }
+    const checkPi = setInterval(() => {
+      if ((window as any).Pi) {
+        const Pi = (window as any).Pi;
+        Pi.init({ version: "2.0", sandbox: false });
+        
+        // Thử lấy thông tin âm thầm (Nếu Boss đã từng bấm Allow, nó sẽ vào luôn)
+        Pi.authenticate(['username'], (auth: any) => {
+          setUser({ username: auth.user.username, uid: auth.user.uid });
+          setLoading(false);
+          clearInterval(checkPi);
+        }, (err: any) => {
+          // Chưa có quyền, tiếp tục đợi Boss bấm nút
+        });
+      }
+    }, 2000); // Quét mỗi 2 giây
+
+    return () => clearInterval(checkPi);
   }, []);
 
-  // 2. Hàm xử lý xác thực "Ép nạp"
-  const handleAuth = async () => {
+  const handleAuth = () => {
     if (loading) return;
     setLoading(true);
-    setStatus("ĐANG KẾT NỐI SDK...");
 
-    const Pi = (window as any).Pi;
-    
-    if (!Pi) {
-      setStatus("LỖI SDK - ĐANG TẢI LẠI...");
-      setTimeout(() => window.location.reload(), 1000);
-      return;
-    }
-
-    try {
-      // Khởi tạo SDK (Bắt buộc)
-      await Pi.init({ version: "2.0", sandbox: false });
-      
-      setStatus("ĐANG ĐỢI BOSS BẤM 'ALLOW'...");
-
-      // GỌI XÁC THỰC QUYẾT LIỆT
+    if ((window as any).Pi) {
+      const Pi = (window as any).Pi;
       Pi.authenticate(['username'], (auth: any) => {
-        const userData = { 
-          username: auth.user.username, 
-          uid: auth.user.uid 
-        };
-        // Lưu vào bộ nhớ máy để lần sau không cần bấm nữa
-        localStorage.setItem('pi_user_v69_final', JSON.stringify(userData));
-        setUser(userData);
+        setUser({ username: auth.user.username, uid: auth.user.uid });
         setLoading(false);
       }, (err: any) => {
-        console.error("Auth Error:", err);
         setLoading(false);
-        // Nếu lỗi hoặc treo sau khi bấm Allow, ép Reset toàn mạch
-        setStatus("MẠCH KẸT - ĐANG TỰ RESET...");
-        setTimeout(() => {
-          window.location.href = window.location.origin;
-        }, 1500);
+        alert("Boss hãy bấm 'Allow' rồi đợi vài giây nhé!");
       });
-
-    } catch (e) {
-      console.error("Init Error:", e);
+    } else {
       setLoading(false);
-      window.location.reload();
+      alert("Vui lòng mở trong Pi Browser!");
     }
   };
 
-  // --- GIAO DIỆN KHI ĐÃ ĐĂNG NHẬP THÀNH CÔNG ---
   if (user) {
     return (
       <div style={{ height: '100vh', backgroundColor: '#000', color: '#ffcc00', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-        <div style={{ padding: '40px', border: '5px solid #ffcc00', borderRadius: '40px', textAlign: 'center', boxShadow: '0 0 50px rgba(255,204,0,0.3)' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: '900', marginBottom: '10px' }}>SUCCESS! ✅</h1>
-          <p style={{ fontSize: '14px', color: '#888', marginBottom: '20px' }}>HỆ THỐNG SUPREME ĐÃ KÍCH HOẠT</p>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#fff', borderBottom: '2px solid #ffcc00', paddingBottom: '10px', marginBottom: '20px' }}>
-            @{user.username}
-          </div>
-          <button 
-            onClick={() => { localStorage.clear(); window.location.reload(); }} 
-            style={{ background: 'none', border: 'none', color: '#555', textDecoration: 'underline', fontSize: '13px', cursor: 'pointer' }}
-          >
-            Đăng xuất khỏi phiên
-          </button>
+        <div style={{ padding: '40px', border: '5px solid #ffcc00', borderRadius: '40px', textAlign: 'center' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: '900' }}>KẾT NỐI THÀNH CÔNG ✅</h1>
+          <p style={{ fontSize: '35px', fontWeight: '900', color: '#fff', margin: '20px 0' }}>@{user.username}</p>
+          <div style={{ fontSize: '12px', color: '#444' }}>ID: {user.uid}</div>
+          <button onClick={() => { localStorage.clear(); window.location.reload(); }} style={{ marginTop: '30px', color: '#555', background: 'none', border: 'none', textDecoration: 'underline' }}>Thoát</button>
         </div>
       </div>
     );
   }
 
-  // --- GIAO DIỆN MÀN HÌNH CHỜ (GIỐNG ẢNH BOSS GỬI) ---
   return (
-    <div style={{ height: '100vh', backgroundColor: '#000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px', fontFamily: 'sans-serif' }}>
-      {/* Biểu tượng Pi phát sáng */}
-      <div style={{ width: '100px', height: '100px', backgroundColor: '#ffcc00', borderRadius: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '55px', fontWeight: 'bold', color: '#000', marginBottom: '40px', boxShadow: '0 0 40px rgba(255,204,0,0.6)' }}>π</div>
-      
-      <h1 style={{ color: '#fff', fontSize: '30px', fontWeight: '900', letterSpacing: '3px', marginBottom: '10px' }}>CONNECT-PI</h1>
-      <p style={{ color: '#ffcc00', fontSize: '14px', fontWeight: 'bold', marginBottom: '50px' }}>SUPREME EDITION v6.9</p>
+    <div style={{ height: '100vh', backgroundColor: '#000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px' }}>
+      <div style={{ width: '90px', height: '90px', backgroundColor: '#ffcc00', borderRadius: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '50px', fontWeight: 'bold', color: '#000', marginBottom: '30px' }}>π</div>
+      <h1 style={{ color: '#fff', fontSize: '26px', fontWeight: '900', marginBottom: '10px' }}>CONNECT-PI</h1>
+      <p style={{ color: '#ffcc00', fontSize: '13px', fontWeight: 'bold', marginBottom: '40px' }}>SUPREME ENGINE v7.0</p>
       
       <button 
         onClick={handleAuth}
-        style={{ 
-          width: '100%', maxWidth: '320px', padding: '22px', 
-          backgroundColor: loading ? '#1a1a1a' : '#ffcc00', 
-          color: loading ? '#444' : '#000', 
-          border: 'none', borderRadius: '50px', 
-          fontWeight: '900', fontSize: '20px',
-          boxShadow: loading ? 'none' : '0 15px 30px rgba(255,204,0,0.3)',
-          cursor: 'pointer',
-          transition: 'all 0.3s ease'
-        }}
-        disabled={loading}
+        style={{ width: '100%', maxWidth: '320px', padding: '20px', backgroundColor: '#ffcc00', color: '#000', border: 'none', borderRadius: '50px', fontWeight: '900', fontSize: '18px' }}
       >
-        {loading ? 'ĐANG PHÁ BĂNG...' : 'KẾT NỐI NGAY 🚀'}
+        {loading ? 'ĐANG ĐỢI TÍN HIỆU...' : 'KẾT NỐI NGAY 🚀'}
       </button>
 
       {loading && (
-        <div style={{ marginTop: '40px', textAlign: 'center' }}>
-          <p style={{ color: '#ffcc00', fontWeight: 'bold', fontSize: '16px', animation: 'blink 1s infinite' }}>{status}</p>
-          <p style={{ color: '#666', fontSize: '12px', marginTop: '15px', lineHeight: '1.6' }}>
-            Sau khi bấm **Allow**, nếu App đứng im 3 giây,<br/>
-            mạch sẽ tự động **Reset** để nổ máy ID của Boss!
-          </p>
-        </div>
+        <p style={{ color: '#ffcc00', marginTop: '30px', textAlign: 'center', fontSize: '14px' }}>
+          Mạch đang quét tín hiệu...<br/>
+          Nếu bảng tím đã đóng, Boss chỉ cần<br/>
+          **ĐỢI 5 GIÂY** (Không cần bấm thêm gì cả)
+        </p>
       )}
-
-      <style jsx>{`
-        @keyframes blink {
-          0% { opacity: 1; }
-          50% { opacity: 0.5; }
-          100% { opacity: 1; }
-        }
-      `}</style>
     </div>
   );
-        }
+}
