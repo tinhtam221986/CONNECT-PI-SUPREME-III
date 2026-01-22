@@ -4,28 +4,23 @@ import React, { useState, useEffect } from 'react';
 export default function SupremeApp() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [retry, setRetry] = useState(false);
 
   useEffect(() => {
-    // Tự động kiểm tra mỗi khi load trang
-    if ((window as any).Pi) {
-      (window as any).Pi.init({ version: "2.0", sandbox: false });
-    }
-    
-    // Hiện nút Thử lại sau 7 giây nếu bị treo
-    const timer = setTimeout(() => {
-      if (loading) setRetry(true);
-    }, 7000);
-    return () => clearTimeout(timer);
-  }, [loading]);
+    const initPi = () => {
+      if ((window as any).Pi) {
+        (window as any).Pi.init({ version: "2.0", sandbox: false });
+      }
+    };
+    initPi();
+    setTimeout(initPi, 1000); // Thử lại lần 2 cho chắc chắn
+  }, []);
 
   const handleAuth = () => {
     setLoading(true);
-    setRetry(false);
-
     const Pi = (window as any).Pi;
+    
     if (!Pi) {
-      alert("SDK chưa nạp xong!");
+      alert("Đang nạp tín hiệu Pi... Boss đợi 2 giây rồi bấm lại!");
       setLoading(false);
       return;
     }
@@ -36,20 +31,17 @@ export default function SupremeApp() {
     }, (err: any) => {
       console.error(err);
       setLoading(false);
-      // Nếu lỗi, thử reset trang
-      if (confirm("Mạch vẫn kẹt, Boss có muốn nạp lại trang không?")) {
-        window.location.reload();
-      }
+      // CHIÊU CUỐI: Nếu kẹt, ép tải lại trang để nhận ID
+      window.location.reload();
     });
   };
 
   if (user) {
     return (
-      <div style={{ height: '100vh', backgroundColor: '#000', color: '#ffcc00', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div style={{ height: '100vh', backgroundColor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ padding: '40px', border: '5px solid #ffcc00', borderRadius: '40px', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: '900' }}>KẾT NỐI THÀNH CÔNG! ✅</h1>
-          <p style={{ fontSize: '32px', fontWeight: '900', color: '#fff', margin: '20px 0' }}>@{user.username}</p>
-          <p style={{ color: '#444' }}>UID: {user.uid}</p>
+          <h1 style={{ color: '#ffcc00' }}>SUCCESS! ✅</h1>
+          <p style={{ fontSize: '30px', fontWeight: 'bold', color: '#fff' }}>@{user.username}</p>
         </div>
       </div>
     );
@@ -57,28 +49,20 @@ export default function SupremeApp() {
 
   return (
     <div style={{ height: '100vh', backgroundColor: '#000', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px' }}>
-      <div style={{ width: '90px', height: '90px', backgroundColor: '#ffcc00', borderRadius: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '50px', fontWeight: 'bold', color: '#000', marginBottom: '30px' }}>π</div>
-      <h1 style={{ color: '#fff', fontSize: '26px', fontWeight: '900', marginBottom: '10px' }}>CONNECT-PI v7.1</h1>
+      <div style={{ width: '80px', height: '80px', backgroundColor: '#ffcc00', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', fontWeight: 'bold', marginBottom: '30px' }}>π</div>
+      <h1 style={{ color: '#fff', fontSize: '24px', fontWeight: 'bold', marginBottom: '40px' }}>CONNECT-PI v7.2</h1>
       
       <button 
         onClick={handleAuth}
-        style={{ width: '100%', maxWidth: '320px', padding: '20px', backgroundColor: '#ffcc00', color: '#000', border: 'none', borderRadius: '50px', fontWeight: '900', fontSize: '18px' }}
+        style={{ width: '100%', maxWidth: '300px', padding: '20px', backgroundColor: '#ffcc00', color: '#000', border: 'none', borderRadius: '50px', fontWeight: 'bold', fontSize: '18px' }}
       >
-        {loading ? 'ĐANG PHÁ BĂNG...' : 'KẾT NỐI NGAY 🚀'}
+        {loading ? 'ĐANG THÔNG MẠCH...' : 'KẾT NỐI NGAY 🚀'}
       </button>
 
       {loading && (
-        <div style={{ marginTop: '30px', textAlign: 'center' }}>
-          <p style={{ color: '#ffcc00', fontSize: '14px' }}>Mạch đang quét tín hiệu...</p>
-          {retry && (
-            <button 
-              onClick={() => window.location.reload()}
-              style={{ marginTop: '15px', background: 'none', border: '1px solid #ffcc00', color: '#ffcc00', padding: '10px 20px', borderRadius: '10px' }}
-            >
-              BẤM VÀO ĐÂY ĐỂ TẢI LẠI MẠCH 🔄
-            </button>
-          )}
-        </div>
+        <p style={{ color: '#ffcc00', marginTop: '20px', textAlign: 'center' }}>
+          Boss hãy bấm **Allow** (nếu hiện bảng tím)<br/>rồi chờ mạch tự nhảy nhé!
+        </p>
       )}
     </div>
   );
