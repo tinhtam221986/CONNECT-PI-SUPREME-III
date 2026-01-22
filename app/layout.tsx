@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
 import Script from "next/script";
 
+const inter = Inter({ subsets: ["latin"] });
+
 export const metadata: Metadata = {
-  title: "Connect-Pi Supreme",
-  description: "The Supreme Web3 Ecosystem on Pi Network",
+  title: "CONNECT-PI-SUPREME",
+  description: "Supreme Ecosystem for Pi Network",
 };
 
 export default function RootLayout({
@@ -12,23 +16,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="vi">
       <head>
-        {/* Nạp SDK của Pi Network trước khi ứng dụng chạy */}
+        {/* Nạp SDK Pi Network chuẩn nhất cho Next.js 14 */}
         <Script 
           src="https://sdk.minepi.com/pi-sdk.js" 
-          strategy="beforeInteractive" 
+          strategy="afterInteractive" 
         />
       </head>
-      <body style={{ 
-        margin: 0, 
-        padding: 0, 
-        backgroundColor: '#000', 
-        color: '#fff',
-        fontFamily: 'sans-serif' 
-      }}>
-        {children}
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
